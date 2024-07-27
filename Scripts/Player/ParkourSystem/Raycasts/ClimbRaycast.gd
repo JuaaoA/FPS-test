@@ -8,6 +8,15 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	
+	# Se o raycast colidir com algo
 	if (is_colliding()):
-		print("CLIMB COLLIDE")
+		
+		# Pegar o objeto que foi colidido
+		var obstacle = get_collider()
+		
+		# Se o objeto for um obstaculo
+		if obstacle.is_in_group("obstacle"):
+			# Fazer alguma coisa TODO
+			print("CLIMB COLLIDE")
 	pass
