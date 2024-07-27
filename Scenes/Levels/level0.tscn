@@ -48,6 +48,11 @@ transform = Transform3D(5.18376, 0, 0, 0, 1.18301, 0, 0, 0, 3.56024, -6.81487, 0
 use_collision = true
 size = Vector3(1, 1, 0.980591)
 
+[node name="Vaultable3" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(5.18376, 0, 0, 0, 1.18301, 0, 0, 0, 3.56024, 4.78423, 0.225174, 14.4955)
+use_collision = true
+size = Vector3(1, 1, 0.980591)
+
 [node name="Climbable" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(19.1005, 0, 0, 0, 6.63076, 0, 0, 0, 6.15323, 0, 0, 25.3111)
 use_collision = true
@@ -166,14 +171,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62789, 0)
 [node name="PlayerCamera" type="Camera3D" parent="Player/PlayerHead"]
 fov = 90.0
 
-[node name="PlayerTriggers" type="Node3D" parent="Player"]
+[node name="PlayerTriggers" type="Node3D" parent="Player/PlayerHead"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.62789, 0)
 
-[node name="VaultRaycast" type="RayCast3D" parent="Player/PlayerTriggers"]
+[node name="VaultRaycast" type="RayCast3D" parent="Player/PlayerHead/PlayerTriggers"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.00850058, 0.569008, 0.00558662)
 target_position = Vector3(1.75, 0, 0)
 script = ExtResource("2_k05vs")
 
-[node name="ClimbRaycast" type="RayCast3D" parent="Player/PlayerTriggers"]
+[node name="ClimbRaycast" type="RayCast3D" parent="Player/PlayerHead/PlayerTriggers"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.37285, 0)
 target_position = Vector3(1.805, 0, 0)
 script = ExtResource("3_o6la8")
