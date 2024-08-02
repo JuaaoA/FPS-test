@@ -1,10 +1,6 @@
 extends RayCast3D
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
+var collision = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -17,6 +13,15 @@ func _process(delta):
 		
 		# Se o objeto for um obstaculo
 		if obstacle.is_in_group("obstacle"):
-			# Fazer alguma coisa TODO
-			print("CLIMB COLLIDE")
-	pass
+			
+			# Marcar a colisão como true
+			collision = true
+			
+			# Retornar
+			return
+			
+	# Caso tudo seja falso, manter falso
+	collision = false
+
+func _get_raycast_collision():
+	return collision

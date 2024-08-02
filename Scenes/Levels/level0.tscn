@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://cgnefjwdic2x0"]
+[gd_scene load_steps=12 format=3 uid="uid://cgnefjwdic2x0"]
 
 [ext_resource type="Script" path="res://Scripts/Player/PlayerControl.gd" id="1_yobd4"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_k05vs"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/ClimbRaycast.gd" id="3_o6la8"]
+[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycastPositioner.gd" id="4_1abbt"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_y2v85"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -183,3 +184,10 @@ script = ExtResource("2_k05vs")
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.37285, 0)
 target_position = Vector3(1.805, 0, 0)
 script = ExtResource("3_o6la8")
+
+[node name="VaultRaycastPositioner" type="Node3D" parent="Player/PlayerHead"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25489, -1.80083)
+
+[node name="VaultPositioner" type="RayCast3D" parent="Player/PlayerHead/VaultRaycastPositioner"]
+target_position = Vector3(0, -1.25, 0)
+script = ExtResource("4_1abbt")

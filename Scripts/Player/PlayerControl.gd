@@ -38,12 +38,21 @@ var normal_gravity = 9.8
 #
 var wallrun_gravity = 6.5
 
+# POSIÇÕES
+var vault_last_pos = null
+
 # BOLEANAS
 var wallrunning = false
+var vaulting = false
 
 # Objetos da camera e cabeça
 @onready var head = $PlayerHead
 @onready var camera = $PlayerHead/PlayerCamera
+
+# Objetos para o raycast
+@onready var vaultRaycast = $PlayerHead/PlayerTriggers/VaultRaycast
+@onready var climbRaycast = $PlayerHead/PlayerTriggers/ClimbRaycast
+@onready var vaultPositioner = $PlayerHead/VaultRaycastPositioner/VaultPositioner
 
 func _ready():
 	# Deixar o mouse travado ao iniciar o jogo
@@ -76,7 +85,7 @@ func _calculate_auto_running(delta):
 		# Retornar o running time para 0
 		running_time = 0
 	
-	print(running_time)
+	#print(running_time)
 
 func _apply_gravity(delta):
 	# Se não estiver no chão
@@ -145,15 +154,51 @@ func _player_move(delta, direction):
 		velocity.x = lerp(velocity.x, direction.x * current_speed, delta * 1.5)
 		velocity.z = lerp(velocity.z, direction.z * current_speed, delta * 1.5)
 
+func _up_movement_input():
+	# Caso o pressione o botão de ações pra cima
+	if Input.is_action_just_pressed("up_movement"):
+		
+		# Verificar raycasts
+		var vault = vaultRaycast._get_raycast_collision()
+		var climb = climbRaycast._get_raycast_collision()
+		
+		# Se o player estiver no chão
+		var floor = is_on_floor()
+		
+		# Algumas ações para cima só serão ativadas quando o jogador estiver
+		# Pressionando up_movement enquanto anda para frente, esse método evita
+		# movimentos não desejados.
+		var forward = Input.is_action_pressed("forward")
+		
+		# Fazer verificações
+		
+		# Se estiver no chão
+		if (floor):
+			
+			# Se estiver andando para frente
+			if (forward):
+				
+				# Para realizar vault
+				if (vault and not climb):
+					print("Iniciar vault")
+		
+		# TODO
+		if (vault):
+			print("VAULT")
+		
+		if (climb):
+			print("CLIMB")
+		
+		# Iniciar um pulo, aumentando a velocidade de Y
+		velocity.y = jump_velocity
+
 func _physics_process(delta):
 	
 	# Aplicar gravidade ao jogador
 	_apply_gravity(delta)
 
-	# Caso o jogador esteja no chão e pressione o botão de ações pra cima
-	if Input.is_action_just_pressed("up_movement") and is_on_floor():
-		# Iniciar um pulo, aumentando a velocidade de Y
-		velocity.y = jump_velocity
+	# Verificar se o jogador pressionou o botão de movimentos para cima
+	_up_movement_input()
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
