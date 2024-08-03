@@ -30,6 +30,8 @@ const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
 var t_bob = 0.0
 
+var t_target = 0
+
 # Gravidades
 
 # Gravidade normal, sem o jogador estar escalando ou realizando wallrun
@@ -45,6 +47,7 @@ var vault_first_pos = null
 # BOLEANAS
 var wallrunning = false
 var vaulting = false
+var enable_gravity = true
 
 # Objetos da camera e cabeça
 @onready var head = $PlayerHead
@@ -90,7 +93,7 @@ func _calculate_auto_running(delta):
 
 func _apply_gravity(delta):
 	# Se não estiver no chão
-	if not is_on_floor():
+	if not is_on_floor() and enable_gravity:
 		# Se o jogador NÃO estiver em wallrun
 		if not wallrunning:
 			# Adiconar gravidade normalmente
@@ -138,6 +141,9 @@ func _change_fov(delta):
 
 func _player_move(delta, direction):
 	
+	# Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
+	# em nenhum movimento de parkour, será feito o movimento normal
+	## MOVIMENTOS DE PARKOUR
 	# Se o jogador estiver em vault
 	if (vaulting):
 		
@@ -150,12 +156,22 @@ func _player_move(delta, direction):
 		# Movimentar suavemente
 		print("VAULTING")
 		
-		position = vault_last_pos
-		vaulting = false
+		# TODO - resolver
+		t_target += 1 * delta
+		global_position = lerp(vault_first_pos, vault_last_pos, t_target)
+		$PlayerCollider.disabled = true
+		enable_gravity = false
+		
+		if (position == vault_last_pos):
+			enable_gravity = true
+			$PlayerCollider.disabled = false
+			vaulting = false
+		
 		
 		# Terminar a função antes, para evitar o jogador de andar enquanto realiza o vault
 		return
 	
+	## MOVIMENTOS NORMAIS
 	# Se jogador estiver no chão
 	if is_on_floor():
 		
@@ -174,6 +190,7 @@ func _player_move(delta, direction):
 		# Se o jogador estiver no ar, o movimento vai ter mais inercia
 		velocity.x = lerp(velocity.x, direction.x * current_speed, delta * 1.5)
 		velocity.z = lerp(velocity.z, direction.z * current_speed, delta * 1.5)
+
 
 func _up_movement_input():
 	# Caso o pressione o botão de ações pra cima
@@ -207,6 +224,7 @@ func _up_movement_input():
 					
 					# Definir uma posição que o jogador terminará o vault
 					vault_last_pos = vaultPositioner._get_new_vault_pos()
+					vault_first_pos = position
 					
 					# Evitar que um pulo normal seja dado
 					return
@@ -218,7 +236,8 @@ func _up_movement_input():
 		if (climb):
 			print("CLIMB")
 		
-		# Iniciar um pulo, aumentando a velocidade de Y
+		# Iniciar um pulo normal, caso nenhuma outra condição seja satisfeita 
+		# anteriormente, como wallrun, climb e vault, aumentando a velocidade de Y
 		velocity.y = jump_velocity
 
 func _physics_process(delta):
