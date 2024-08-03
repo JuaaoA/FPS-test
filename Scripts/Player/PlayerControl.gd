@@ -40,6 +40,7 @@ var wallrun_gravity = 6.5
 
 # POSIÇÕES
 var vault_last_pos = null
+var vault_first_pos = null
 
 # BOLEANAS
 var wallrunning = false
@@ -111,8 +112,9 @@ func _auto_running():
 
 func _dash_input():
 	
-	# Caso jogador pressione dash e tempo de corrida for menor que o trigger de corrida 
-	if Input.is_action_just_pressed("dash") and running_time < trigger_run:
+	# Caso jogador pressione dash e tempo de corrida for menor que o trigger de corrida
+	var dash_input = Input.is_action_just_pressed("dash")
+	if dash_input and running_time < trigger_run and is_on_floor():
 		# Quando o jogador apertar, o running time
 		# Irá direto para o trigger de correr, fa-
 		# zendo o jogador correr instantaneamente
@@ -135,6 +137,25 @@ func _change_fov(delta):
 	camera.fov = lerp(camera.fov, target_fov, delta * 8.0)
 
 func _player_move(delta, direction):
+	
+	# Se o jogador estiver em vault
+	if (vaulting):
+		
+		# Caso a posição do vault seja nulo
+		if vault_last_pos == null:
+			# Parar o vault
+			vaulting = false
+			return
+		
+		# Movimentar suavemente
+		print("VAULTING")
+		
+		position = vault_last_pos
+		vaulting = false
+		
+		# Terminar a função antes, para evitar o jogador de andar enquanto realiza o vault
+		return
+	
 	# Se jogador estiver no chão
 	if is_on_floor():
 		
@@ -180,7 +201,15 @@ func _up_movement_input():
 				
 				# Para realizar vault
 				if (vault and not climb):
-					print("Iniciar vault")
+					
+					# Iniciar vault
+					vaulting = true
+					
+					# Definir uma posição que o jogador terminará o vault
+					vault_last_pos = vaultPositioner._get_new_vault_pos()
+					
+					# Evitar que um pulo normal seja dado
+					return
 		
 		# TODO
 		if (vault):
