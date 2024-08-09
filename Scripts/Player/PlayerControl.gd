@@ -139,37 +139,58 @@ func _change_fov(delta):
 	# Suavizar a mudança do FOV com o lerp
 	camera.fov = lerp(camera.fov, target_fov, delta * 8.0)
 
-func _player_move(delta, direction):
-	
-	# Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
-	# em nenhum movimento de parkour, será feito o movimento normal
-	## MOVIMENTOS DE PARKOUR
-	# Se o jogador estiver em vault
-	if (vaulting):
-		
+func _vault_move(delta):
 		# Caso a posição do vault seja nulo
 		if vault_last_pos == null:
 			# Parar o vault
 			vaulting = false
 			return
 		
-		# Movimentar suavemente
-		print("VAULTING")
+		## Movimentar suavemente
 		
-		# TODO - resolver
-		t_target += 1 * delta
-		global_position = lerp(vault_first_pos, vault_last_pos, t_target)
+		# Fazer um calculo para o lerp
+		t_target += 0.3 * delta
+		
+		# Realizar o lerp, movimentar suavemente entre dois pontos
+		global_position = global_position.lerp(vault_last_pos, t_target)
+		
+		# Manter desabilitado a colisão e a gravidade para evitar travadas
 		$PlayerCollider.disabled = true
 		enable_gravity = false
 		
-		if (position == vault_last_pos):
-			enable_gravity = true
-			$PlayerCollider.disabled = false
-			vaulting = false
+		# TODO - NO PONTO QUE PARAR, O LERP DEVE PARAR DE FUNCIONAR E VOLTAR AO NORMAL
 		
+		# Pegar a distancia entre o jogador e o ultimo ponto do vault
+		var distance_to_vault_target = (global_position - vault_last_pos).length()
+		
+		# Se a distancia entre o jogador e o ponto for pequena
+		if (distance_to_vault_target <= 0.30):
+			
+			# Desabilitar o movimento de vault
+			vaulting = false
+			
+			# Habilitar de volta a gravidade
+			enable_gravity = true
+			
+			# Habilitar a colisão do jogador com outros objetos
+			$PlayerCollider.disabled = false
+			
+			# Resetar calculo de suavização
+			t_target = 0
+
+func _player_move(delta, direction):
+	## Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
+	## em nenhum movimento de parkour, será feito o movimento normal
+	
+	## MOVIMENTOS DE PARKOUR
+	# Se o jogador estiver em vault
+	if (vaulting):
+		# Realizar movimento vault
+		_vault_move(delta)
 		
 		# Terminar a função antes, para evitar o jogador de andar enquanto realiza o vault
 		return
+	
 	
 	## MOVIMENTOS NORMAIS
 	# Se jogador estiver no chão
@@ -193,6 +214,13 @@ func _player_move(delta, direction):
 
 
 func _up_movement_input():
+	## Evitar o botão caso já esteja realizando ações
+	# VAULT
+	if (vaulting):
+		# Retornar pra evitar um pulo enquanto realiza o vault
+		return
+	
+	## Realizar movimentos
 	# Caso o pressione o botão de ações pra cima
 	if Input.is_action_just_pressed("up_movement"):
 		
@@ -201,7 +229,7 @@ func _up_movement_input():
 		var climb = climbRaycast._get_raycast_collision()
 		
 		# Se o player estiver no chão
-		var floor = is_on_floor()
+		var on_floor = is_on_floor()
 		
 		# Algumas ações para cima só serão ativadas quando o jogador estiver
 		# Pressionando up_movement enquanto anda para frente, esse método evita
@@ -211,7 +239,7 @@ func _up_movement_input():
 		# Fazer verificações
 		
 		# Se estiver no chão
-		if (floor):
+		if (on_floor):
 			
 			# Se estiver andando para frente
 			if (forward):
@@ -229,12 +257,29 @@ func _up_movement_input():
 					# Evitar que um pulo normal seja dado
 					return
 		
-		# TODO
-		if (vault):
-			print("VAULT")
+		# Se estiver no ar
+		else:
+			
+			# Se estiver com uma parede na frente
+			## TODO
+			if (climb):
+				
+				# Pegar o ponto da parede
+				var wall_point = climbRaycast._get_raycast_collision_point()
+				
+				# Calcular distancia entre o jogador e a parede
+				var wall_distance_to_player = (position - wall_point).length()
+				
+				# 1.61
+				var wallclimb_trigger_distance = 1.61
+				
+				print("CLIMBING")
+				print(wall_distance_to_player)
+				velocity.y = 10
+				
+				return
 		
-		if (climb):
-			print("CLIMB")
+		# TODO
 		
 		# Iniciar um pulo normal, caso nenhuma outra condição seja satisfeita 
 		# anteriormente, como wallrun, climb e vault, aumentando a velocidade de Y

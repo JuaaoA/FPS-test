@@ -25,3 +25,6 @@ func _process(delta):
 
 func _get_raycast_collision():
 	return collision
+
+func _get_raycast_collision_point():
+	return get_collision_point()

@@ -177,17 +177,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.62789, 0)
 
 [node name="VaultRaycast" type="RayCast3D" parent="Player/PlayerHead/PlayerTriggers"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.00850058, 0.569008, 0.00558662)
-target_position = Vector3(1.75, 0, 0)
+target_position = Vector3(1.5, 2.08165e-12, 2.08165e-12)
 script = ExtResource("2_k05vs")
 
 [node name="ClimbRaycast" type="RayCast3D" parent="Player/PlayerHead/PlayerTriggers"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.37285, 0)
-target_position = Vector3(1.805, 0, 0)
+target_position = Vector3(2.2, 2.08165e-12, 2.08165e-12)
 script = ExtResource("3_o6la8")
 
 [node name="VaultRaycastPositioner" type="Node3D" parent="Player/PlayerHead"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25489, -1.80083)
 
 [node name="VaultPositioner" type="RayCast3D" parent="Player/PlayerHead/VaultRaycastPositioner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.239307)
 target_position = Vector3(2.08165e-12, -1.35, 2.08165e-12)
 script = ExtResource("4_1abbt")
