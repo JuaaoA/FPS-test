@@ -46,6 +46,7 @@ var vault_first_pos = null
 
 # BOLEANAS
 var wallrunning = false
+var climbing = false
 var vaulting = false
 var enable_gravity = true
 
@@ -57,6 +58,7 @@ var enable_gravity = true
 @onready var vaultRaycast = $PlayerHead/PlayerTriggers/VaultRaycast
 @onready var climbRaycast = $PlayerHead/PlayerTriggers/ClimbRaycast
 @onready var vaultPositioner = $PlayerHead/VaultRaycastPositioner/VaultPositioner
+@onready var airClimb = $PlayerHead/PlayerTriggers/AirClimbTriggers
 
 func _ready():
 	# Deixar o mouse travado ao iniciar o jogo
@@ -212,7 +214,6 @@ func _player_move(delta, direction):
 		velocity.x = lerp(velocity.x, direction.x * current_speed, delta * 1.5)
 		velocity.z = lerp(velocity.z, direction.z * current_speed, delta * 1.5)
 
-
 func _up_movement_input():
 	## Evitar o botão caso já esteja realizando ações
 	# VAULT
@@ -270,12 +271,18 @@ func _up_movement_input():
 				# Calcular distancia entre o jogador e a parede
 				var wall_distance_to_player = (position - wall_point).length()
 				
-				# 1.61
-				var wallclimb_trigger_distance = 1.61
+				# 1.65
+				var wallclimb_trigger_distance = 1.65
 				
 				print("CLIMBING")
 				print(wall_distance_to_player)
-				velocity.y = 10
+				
+				# Se a distancia entre a parede e o jogador for menor que a
+				# distância necessária para o trigger
+				if (wall_distance_to_player <= wallclimb_trigger_distance):
+					
+					# TODO subir
+					velocity.y = 10
 				
 				return
 		
@@ -285,6 +292,26 @@ func _up_movement_input():
 		# anteriormente, como wallrun, climb e vault, aumentando a velocidade de Y
 		velocity.y = jump_velocity
 
+func _air_climb_edges():
+	## DETECTAR POSSÍVEIS PAREDES AGARRÁVEIS
+	# Se o jogador não estiver no ar
+	if not is_on_floor():
+		# Detectar se há paredes agarráveis na frente do jogador
+		var top_climb_edge = airClimb._dettect_walls("top")
+		var medium_climb_edge = null
+		var low_climb_edge = null
+	else:
+		return
+	
+	##TODO FAZER ALGO DE ACORDO COM O QUE FOI DETECTADO
+		
+		
+	pass
+
+func _climb_edge():
+	pass
+
+## PARA FISICA DO JOGO
 func _physics_process(delta):
 	
 	# Aplicar gravidade ao jogador
@@ -292,6 +319,12 @@ func _physics_process(delta):
 
 	# Verificar se o jogador pressionou o botão de movimentos para cima
 	_up_movement_input()
+	
+	# Verifica se o jogador está em um canto de obstaculo, para poder se agarrar
+	# assim, para poder subir ou descer
+	_air_climb_edges()
+	
+	_climb_edge()
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.

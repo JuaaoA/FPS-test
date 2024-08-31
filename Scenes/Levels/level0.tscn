@@ -54,8 +54,8 @@ use_collision = true
 transform = Transform3D(7.51274, 0, 0, 0, 7.60504, 0, 0, 0, 6.15323, 22.97, 0, 25.3111)
 use_collision = true
 
-[node name="wallrun" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
-transform = Transform3D(37.9995, 0, 0, 0, 11.9586, 0, 0, 0, 1.30605, 14.2468, 3.49245, 28.7828)
+[node name="wallrun2" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(37.9995, 0, 0, 0, 11.9586, 0, 0, 0, 1.30605, 14.2468, 3.49245, 28.7959)
 use_collision = true
 
 [node name="Ground" type="CSGBox3D" parent="Enviroment"]

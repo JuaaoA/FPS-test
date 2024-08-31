@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://cea1fj03s3tek"]
+[gd_scene load_steps=9 format=3 uid="uid://cea1fj03s3tek"]
 
 [ext_resource type="Script" path="res://Scripts/Player/PlayerControl.gd" id="1_lwoke"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_csygn"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/ClimbRaycast.gd" id="3_ab5ip"]
+[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTriggers.gd" id="4_ty5oa"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycastPositioner.gd" id="4_utwxi"]
+[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTrigger.gd" id="5_pvwo3"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lot0v"]
 
@@ -40,6 +42,19 @@ script = ExtResource("2_csygn")
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.37285, 0)
 target_position = Vector3(2.2, 2.08165e-12, 2.08165e-12)
 script = ExtResource("3_ab5ip")
+
+[node name="AirClimbTriggers" type="Node3D" parent="PlayerHead/PlayerTriggers"]
+script = ExtResource("4_ty5oa")
+
+[node name="TopTriggerVoid" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 2.6362, 0)
+target_position = Vector3(2, 0, 0)
+script = ExtResource("5_pvwo3")
+
+[node name="TopTrigger" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 2.31282, 0)
+target_position = Vector3(2, 0, 0)
+script = ExtResource("5_pvwo3")
 
 [node name="VaultRaycastPositioner" type="Node3D" parent="PlayerHead"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25489, -1.80083)
