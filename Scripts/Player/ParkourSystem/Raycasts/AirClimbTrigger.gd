@@ -1,7 +1,10 @@
 extends RayCast3D
 
+func _get_point():
+	# Verificar colisão
+	if _check_raycast_collision():
+		return get_collision_point() 
 
-# Called when the node enters the scene tree for the first time.
 func _check_raycast_collision():
 	return is_colliding()
 

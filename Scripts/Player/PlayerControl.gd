@@ -40,9 +40,13 @@ var normal_gravity = 9.8
 #
 var wallrun_gravity = 6.5
 
-# POSIÇÕES
+# POSIÇÕES VAULT
 var vault_last_pos = null
 var vault_first_pos = null
+
+# POSIÇÕES CLIMB
+var climb_target_pos = null
+var climb_first_pos = null
 
 # BOLEANAS
 var wallrunning = false
@@ -293,20 +297,51 @@ func _up_movement_input():
 		velocity.y = jump_velocity
 
 func _air_climb_edges():
+	## VARIÁVEIS
+	var top_climb_edge
+	var medium_climb_edge
+	var low_climb_edge
+	
 	## DETECTAR POSSÍVEIS PAREDES AGARRÁVEIS
 	# Se o jogador não estiver no ar
 	if not is_on_floor():
 		# Detectar se há paredes agarráveis na frente do jogador
-		var top_climb_edge = airClimb._dettect_walls("top")
-		var medium_climb_edge = null
-		var low_climb_edge = null
+		top_climb_edge = airClimb._dettect_walls("top")
+		medium_climb_edge = null
+		low_climb_edge = null
 	else:
 		return
 	
-	##TODO FAZER ALGO DE ACORDO COM O QUE FOI DETECTADO
+	## FAZER ALGO DE ACORDO COM O QUE FOI DETECTADO
+	# Ter certeza de que nenhum outro movimento esteja acontecendo para evitar bugs
+	if (not climbing and not wallrunning and not vaulting):
 		
+		# String da região que será afetada
+		var region_climb
 		
-	pass
+		## VERIFICAÇÕES DE CADA REGIAO
+		if (low_climb_edge):
+			region_climb = "low"
+		elif (medium_climb_edge):
+			region_climb = "medium"
+		elif (top_climb_edge):
+			region_climb = "top"
+		
+		# Retornar caso não tenha nenhum trigger
+		if (region_climb == null):
+			return
+		
+		## INICIAR PROCESSO PARA PEGAR O PONTO DESTINO DE ESCALADA
+		# Definir que o jogador está escalando
+		climbing = true
+		
+		## PEGAR O PONTO OBJETIVO PARA O JOGADOR IR
+		# Definir a posição inicial
+		climb_first_pos = position
+		
+		# Definir a posição do objetivo
+		climb_target_pos = airClimb._get_new_climb_pos(region_climb)
+	
 
 func _climb_edge():
 	pass
