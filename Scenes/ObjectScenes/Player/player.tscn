@@ -58,6 +58,7 @@ script = ExtResource("5_pvwo3")
 
 [node name="ClimbTriggerGround" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.65, 0)
+script = ExtResource("5_pvwo3")
 
 [node name="VaultRaycastPositioner" type="Node3D" parent="PlayerHead"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25489, -1.80083)

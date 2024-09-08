@@ -2,8 +2,7 @@ extends RayCast3D
 
 func _get_point():
 	# Verificar colisão
-	if _check_raycast_collision():
-		return get_collision_point() 
+	return get_collision_point() 
 
 func _check_raycast_collision():
 	return is_colliding()

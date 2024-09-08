@@ -54,8 +54,11 @@ func _get_new_climb_pos(region: String):
 			region_point = low._get_point()
 	
 	# TODO Definir uma nova posição para o climb usando raycast
-	climb_ground.position = Vector3()
+	print(climb_ground.position, "old pos")
+	climb_ground.position = Vector3(region_point.x + 2, climb_ground.position.y, region_point.z)
+	print(climb_ground.position, "new pos")
 	
+	return climb_ground._get_point()
 
 func _dettect_walls(region: String):
 	

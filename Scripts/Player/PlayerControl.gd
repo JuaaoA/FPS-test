@@ -184,6 +184,45 @@ func _vault_move(delta):
 			# Resetar calculo de suavização
 			t_target = 0
 
+func _climb_move(delta):
+	
+	# Sair desse método caso não esteja escalando
+	if (climb_target_pos == null):
+		return
+	
+	## Movimentar suavemente até o ponto
+	
+	#
+	t_target += 0.3 * delta
+	
+	global_position = global_position.lerp(climb_target_pos, t_target)
+	
+	# Manter desabilitado a colisão e a gravidade para evitar travadas
+	$PlayerCollider.disabled = true
+	enable_gravity = false
+	
+	
+	# TODO - NO PONTO QUE PARAR, O LERP DEVE PARAR DE FUNCIONAR E VOLTAR AO NORMAL
+	
+	# Pegar a distancia entre o jogador e o ultimo ponto do vault
+	var distance_to_vault_target = (global_position - climb_target_pos).length()
+	
+	# Se a distancia entre o jogador e o ponto for pequena
+	if (distance_to_vault_target <= 0.30):
+		
+		# Desabilitar o movimento de vault
+		climbing = false
+		
+		# Habilitar de volta a gravidade
+		enable_gravity = true
+		
+		# Habilitar a colisão do jogador com outros objetos
+		$PlayerCollider.disabled = false
+		
+		# Resetar calculo de suavização
+		t_target = 0
+	
+
 func _player_move(delta, direction):
 	## Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
 	## em nenhum movimento de parkour, será feito o movimento normal
@@ -195,6 +234,15 @@ func _player_move(delta, direction):
 		_vault_move(delta)
 		
 		# Terminar a função antes, para evitar o jogador de andar enquanto realiza o vault
+		return
+	
+	# Se o jogador estiver em climb
+	if (climbing):
+		
+		# Realizar movimento climb
+		_climb_move(delta)
+		
+		# Terminar função antes
 		return
 	
 	
@@ -343,15 +391,12 @@ func _air_climb_edges():
 		climb_target_pos = airClimb._get_new_climb_pos(region_climb)
 	
 
-func _climb_edge():
-	pass
-
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
 	
 	# Aplicar gravidade ao jogador
 	_apply_gravity(delta)
-
+	
 	# Verificar se o jogador pressionou o botão de movimentos para cima
 	_up_movement_input()
 	
@@ -359,8 +404,6 @@ func _physics_process(delta):
 	# assim, para poder subir ou descer
 	_air_climb_edges()
 	
-	_climb_edge()
-
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var input_dir = Input.get_vector("left", "right", "forward", "backward")
