@@ -42,11 +42,9 @@ var wallrun_gravity = 6.5
 
 # POSIÇÕES VAULT
 var vault_last_pos = null
-var vault_first_pos = null
 
 # POSIÇÕES CLIMB
 var climb_target_pos = null
-var climb_first_pos = null
 
 # BOLEANAS
 var wallrunning = false
@@ -153,7 +151,6 @@ func _vault_move(delta):
 			return
 		
 		## Movimentar suavemente
-		
 		# Fazer um calculo para o lerp
 		t_target += 0.3 * delta
 		
@@ -185,32 +182,28 @@ func _vault_move(delta):
 			t_target = 0
 
 func _climb_move(delta):
-	
 	# Sair desse método caso não esteja escalando
 	if (climb_target_pos == null):
 		return
 	
 	## Movimentar suavemente até o ponto
-	
-	#
+	# Calculo para a suavização
 	t_target += 0.3 * delta
 	
+	# Realizar o lerp até a posição do climb
 	global_position = global_position.lerp(climb_target_pos, t_target)
 	
 	# Manter desabilitado a colisão e a gravidade para evitar travadas
 	$PlayerCollider.disabled = true
 	enable_gravity = false
 	
-	
-	# TODO - NO PONTO QUE PARAR, O LERP DEVE PARAR DE FUNCIONAR E VOLTAR AO NORMAL
-	
-	# Pegar a distancia entre o jogador e o ultimo ponto do vault
+	# Pegar a distancia entre o jogador e o ponto alvo do climb
 	var distance_to_vault_target = (global_position - climb_target_pos).length()
 	
 	# Se a distancia entre o jogador e o ponto for pequena
 	if (distance_to_vault_target <= 0.30):
-		
-		# Desabilitar o movimento de vault
+		## DESABILITAR O CLIMB
+		# Desabilitar o movimento de climb
 		climbing = false
 		
 		# Habilitar de volta a gravidade
@@ -221,7 +214,9 @@ func _climb_move(delta):
 		
 		# Resetar calculo de suavização
 		t_target = 0
-	
+		
+		# Definir velocidade vertical do jogador em 0 para evitar pulos involuntários
+		velocity.y = 0
 
 func _player_move(delta, direction):
 	## Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
@@ -289,11 +284,9 @@ func _up_movement_input():
 		# movimentos não desejados.
 		var forward = Input.is_action_pressed("forward")
 		
-		# Fazer verificações
-		
+		## Fazer verificações
 		# Se estiver no chão
 		if (on_floor):
-			
 			# Se estiver andando para frente
 			if (forward):
 				
@@ -305,14 +298,11 @@ func _up_movement_input():
 					
 					# Definir uma posição que o jogador terminará o vault
 					vault_last_pos = vaultPositioner._get_new_vault_pos()
-					vault_first_pos = position
 					
 					# Evitar que um pulo normal seja dado
 					return
-		
 		# Se estiver no ar
 		else:
-			
 			# Se estiver com uma parede na frente
 			## TODO
 			if (climb):
@@ -335,10 +325,7 @@ func _up_movement_input():
 					
 					# TODO subir
 					velocity.y = 10
-				
 				return
-		
-		# TODO
 		
 		# Iniciar um pulo normal, caso nenhuma outra condição seja satisfeita 
 		# anteriormente, como wallrun, climb e vault, aumentando a velocidade de Y
@@ -347,7 +334,6 @@ func _up_movement_input():
 func _air_climb_edges():
 	## VARIÁVEIS
 	var top_climb_edge
-	var medium_climb_edge
 	var low_climb_edge
 	
 	## DETECTAR POSSÍVEIS PAREDES AGARRÁVEIS
@@ -355,28 +341,24 @@ func _air_climb_edges():
 	if not is_on_floor():
 		# Detectar se há paredes agarráveis na frente do jogador
 		top_climb_edge = airClimb._dettect_walls("top")
-		medium_climb_edge = null
-		low_climb_edge = null
+		low_climb_edge = airClimb._dettect_walls("low")
 	else:
 		return
 	
 	## FAZER ALGO DE ACORDO COM O QUE FOI DETECTADO
 	# Ter certeza de que nenhum outro movimento esteja acontecendo para evitar bugs
 	if (not climbing and not wallrunning and not vaulting):
-		
-		# String da região que será afetada
+		# String da região que será usada
 		var region_climb
 		
 		## VERIFICAÇÕES DE CADA REGIAO
 		if (low_climb_edge):
 			region_climb = "low"
-		elif (medium_climb_edge):
-			region_climb = "medium"
 		elif (top_climb_edge):
 			region_climb = "top"
 		
-		# Retornar caso não tenha nenhum trigger
-		if (region_climb == null):
+		# Retornar caso não tenha nenhum trigger ou o jogador não esteja andando para frente
+		if (region_climb == null or not Input.is_action_pressed("forward")):
 			return
 		
 		## INICIAR PROCESSO PARA PEGAR O PONTO DESTINO DE ESCALADA
@@ -384,12 +366,8 @@ func _air_climb_edges():
 		climbing = true
 		
 		## PEGAR O PONTO OBJETIVO PARA O JOGADOR IR
-		# Definir a posição inicial
-		climb_first_pos = position
-		
 		# Definir a posição do objetivo
 		climb_target_pos = airClimb._get_new_climb_pos(region_climb)
-	
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):

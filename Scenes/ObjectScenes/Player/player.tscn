@@ -47,17 +47,28 @@ script = ExtResource("3_ab5ip")
 script = ExtResource("4_ty5oa")
 
 [node name="TopTriggerVoid" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 2.6362, 0)
-target_position = Vector3(2, 0, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.5751, 0)
+target_position = Vector3(1.35, 0, 0)
 script = ExtResource("5_pvwo3")
 
 [node name="TopTrigger" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 2.31282, 0)
-target_position = Vector3(2, 0, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.25172, 0)
+target_position = Vector3(1.35, 0, 0)
+script = ExtResource("5_pvwo3")
+
+[node name="LowTriggerVoid" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.765809, 0)
+target_position = Vector3(1.1, 0, 0)
+script = ExtResource("5_pvwo3")
+
+[node name="LowTrigger" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.57626, 0)
+target_position = Vector3(1.1, 0, 0)
 script = ExtResource("5_pvwo3")
 
 [node name="ClimbTriggerGround" type="RayCast3D" parent="PlayerHead/PlayerTriggers/AirClimbTriggers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.65, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.57858, -1.35319)
+target_position = Vector3(0, -1.5, 0)
 script = ExtResource("5_pvwo3")
 
 [node name="VaultRaycastPositioner" type="Node3D" parent="PlayerHead"]
