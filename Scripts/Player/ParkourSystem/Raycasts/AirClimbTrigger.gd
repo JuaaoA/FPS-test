@@ -12,4 +12,3 @@ func _get_collision_distance():
 	if is_colliding():
 		# Retornar distancia entre a origem do raycast e o ponto de colisão
 		return global_position.distance_to(get_collision_point())
-

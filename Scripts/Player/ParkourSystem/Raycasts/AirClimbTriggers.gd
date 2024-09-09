@@ -2,14 +2,11 @@ extends Node3D
 
 var distance_to_dettect = 0.70
 
-# Triggers para o ponto mais alto
+# Raycasts para o ponto mais alto
 var top
 var top_void
 
-#
-var medium
-var medium_void
-
+# Raycasts para o ponto mais baixo
 var low
 var low_void
 
@@ -26,61 +23,50 @@ func _ready():
 	top = $TopTrigger
 	top_void = $TopTriggerVoid
 	
-	## TRIGGER LOCALIZADOS EM UM PONTO MÉDIO
-	medium = null
-	medium_void = null
-	
 	## TRIGGERS BAIXOS
-	low = null
-	low_void = null
-	
+	low = $LowTrigger
+	low_void = $LowTriggerVoid
 
 ## ENCONTRAR UMA NOVA POSIÇÃO PARA O CLIMB
 func _get_new_climb_pos(region: String):
-	
+	# region_point dirá qual é o ponto em que colide no chão 
 	var region_point
 	
 	# Ver qual região do raycast foi selecionado
-	match (region):
+	match region:
 		
-		# Pegar o ponto que o raycast colide na parede
+		# Pegar o ponto que o raycast colide no chão
 		"top":
 			region_point = top._get_point()
-		
-		"medium":
-			region_point = medium._get_point()
 		
 		"low":
 			region_point = low._get_point()
 	
 	# TODO Definir uma nova posição para o climb usando raycast
-	print(climb_ground.position, "old pos")
-	climb_ground.position = Vector3(region_point.x + 2, climb_ground.position.y, region_point.z)
-	print(climb_ground.position, "new pos")
+	#print(climb_ground.position, "old pos")
+	#climb_ground.position = Vector3(region_point.x + 2, climb_ground.position.y, region_point.z)
+	#print(climb_ground.position, "new pos")
 	
-	return climb_ground._get_point()
+	# TODO - POLIR MAIS O CLIMB
+	
+	# Retornar a posição 
+	return climb_ground._get_point() + Vector3(0, 0.2, 0)
 
 func _dettect_walls(region: String):
-	
 	## MATCH PARA ESCOLHER QUAL TRIGGER IRÁ SER ACIONADO
 	match region:
-		
 		# Trigger no topo
 		"top":
 			# Se o trigger detectou uma parede agarrável
-			if _top_trigger_check():
-				print(top._get_collision_distance())
-				return true
-				
-			
+			return _top_trigger_check()
 		
-	
-	
-	pass
+		# Trigger baixo
+		"low":
+			# Se detectou uma parede agarrável
+			return _low_trigger_check()
+
+func _low_trigger_check():
+	return low._check_raycast_collision() and not low_void._check_raycast_collision()
 
 func _top_trigger_check():
 	return top._check_raycast_collision() and not top_void._check_raycast_collision()
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
