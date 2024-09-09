@@ -47,6 +47,8 @@ func _get_new_climb_pos(region: String):
 	#climb_ground.position = Vector3(region_point.x + 2, climb_ground.position.y, region_point.z)
 	#print(climb_ground.position, "new pos")
 	
+	# TODO - POLIR MAIS O CLIMB
+	
 	# Retornar a posição 
 	return climb_ground._get_point() + Vector3(0, 0.2, 0)
 
