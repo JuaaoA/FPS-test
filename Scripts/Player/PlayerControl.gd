@@ -46,11 +46,16 @@ var vault_last_pos = null
 # POSIÇÕES CLIMB
 var climb_target_pos = null
 
+# ROTAÇÃO FAST TURN
+var initial_head_rotation = null
+var target_head_rotation = null
+
 # BOLEANAS
 var wallrunning = false
 var climbing = false
 var vaulting = false
 var enable_gravity = true
+var turning = false
 
 # Objetos da camera e cabeça
 @onready var head = $PlayerHead
@@ -61,6 +66,7 @@ var enable_gravity = true
 @onready var climbRaycast = $PlayerHead/PlayerTriggers/ClimbRaycast
 @onready var vaultPositioner = $PlayerHead/VaultRaycastPositioner/VaultPositioner
 @onready var airClimb = $PlayerHead/PlayerTriggers/AirClimbTriggers
+@onready var backwardRaycast = $PlayerHead/PlayerTriggers/AirClimbTriggers/BackwardTrigger
 
 func _ready():
 	# Deixar o mouse travado ao iniciar o jogo
@@ -275,6 +281,9 @@ func _up_movement_input():
 		# Verificar raycasts
 		var vault = vaultRaycast._get_raycast_collision()
 		var climb = climbRaycast._get_raycast_collision()
+
+		# Verificar um raycast para ver se tem uma parede atrás do jogador
+		var backwardsClimb = backwardRaycast._check_raycast_collision()
 		
 		# Se o player estiver no chão
 		var on_floor = is_on_floor()
@@ -303,6 +312,12 @@ func _up_movement_input():
 					return
 		# Se estiver no ar
 		else:
+			# Se estiver com uma parede ATRÁS do jogador
+			if (backwardsClimb):
+				# TODO -
+				print("BACKWARDS CLIMB")
+				print(backwardRaycast._get_collision_distance())
+
 			# Se estiver com uma parede na frente
 			## TODO
 			if (climb):
@@ -313,9 +328,10 @@ func _up_movement_input():
 				# Calcular distancia entre o jogador e a parede
 				var wall_distance_to_player = (position - wall_point).length()
 				
-				# 1.65
-				var wallclimb_trigger_distance = 1.65
+				# Distancia entre a parede e o jogador máxima
+				var wallclimb_trigger_distance = 1.60
 				
+				# DEBUG -
 				print("CLIMBING")
 				print(wall_distance_to_player)
 				
@@ -369,6 +385,48 @@ func _air_climb_edges():
 		# Definir a posição do objetivo
 		climb_target_pos = airClimb._get_new_climb_pos(region_climb)
 
+func _fast_turn():
+	## PRIMEIRO DE TUDO, VERIFICAR SE OUTRAS AÇÕES ESTÃO SENDO REALIZADAS
+	# Se o jogador já estiver virando
+	if turning:
+
+		## REALIZAR A MOVIMENTAÇÃO TODO TERMINAR
+
+		#
+		head.rotation.y = lerp_angle(head.rotation.y, target_head_rotation, 0.3)
+
+
+		# Caso o jogador tenha virado
+		if rad_to_deg(head.rotation.y) == rad_to_deg(target_head_rotation):
+			turning = false
+			initial_head_rotation = null
+			target_head_rotation = null
+
+		return
+
+	# o jogador não pode virar enquanto realiza vault
+	if vaulting or climbing:
+		return
+	
+	# Se o jogador pressionar o botão de virar
+	if Input.is_action_just_pressed("fast_turn"):
+
+		## TODO IMPLEMENTAR ESSA PORRA LOGO
+		print("QUICK TURN")
+
+		# Habilitar o estado de rotação
+		turning = true
+
+		# Guardar rotação do jogador
+		initial_head_rotation = head.rotation.y
+
+		# Definir o ponto alvo para o jogador girar
+		target_head_rotation = initial_head_rotation + deg_to_rad(180)
+
+		# Resetar a corrida do jogador
+		running_time = 0
+		
+
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
 	
@@ -398,11 +456,14 @@ func _physics_process(delta):
 	
 	# Calcular o movimento
 	_player_move(delta, direction)
+
+	# Verifica se o jogador apertou a tecla para virar rapidamente
+	_fast_turn()
 	
 	# Head bob
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera.transform.origin = _headbob(t_bob)
-	
+
 	# FOV
 	_change_fov(delta)
 	
