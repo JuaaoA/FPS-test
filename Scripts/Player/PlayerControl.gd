@@ -12,6 +12,12 @@ const trigger_faster_run = 10
 # Variável para contar quanto tempo o jogador está correndo
 var running_time = 0
 
+# Variável para contar quanto tempo o jogador está virando
+var turning_time = 0
+
+# Variável para o movimento de olhar do jogador
+var direction = 0
+
 # Constante para pulo
 const jump_velocity = 4.5
 
@@ -46,6 +52,10 @@ var vault_last_pos = null
 # POSIÇÕES CLIMB
 var climb_target_pos = null
 
+# WALL CLIMB
+var wallclimb_horizontal_force = 8
+var wallclimb_vertical_force = 8
+
 # ROTAÇÃO FAST TURN
 var initial_head_rotation = null
 var target_head_rotation = null
@@ -55,6 +65,7 @@ var wallrunning = false
 var climbing = false
 var vaulting = false
 var enable_gravity = true
+var can_look = true
 var turning = false
 
 # Objetos da camera e cabeça
@@ -74,8 +85,8 @@ func _ready():
 
 func _unhandled_input(event):
 	
-	# Se o evento que acontecer for um movimento de mouse
-	if event is InputEventMouseMotion:
+	# Se o evento que acontecer for um movimento de mouse e se o jogador pode olhar
+	if event is InputEventMouseMotion and can_look:
 		
 		# Rotacionar cabeça e camera
 		head.rotate_y(-event.relative.x * sensitivity)
@@ -224,7 +235,7 @@ func _climb_move(delta):
 		# Definir velocidade vertical do jogador em 0 para evitar pulos involuntários
 		velocity.y = 0
 
-func _player_move(delta, direction):
+func _player_move(delta):
 	## Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
 	## em nenhum movimento de parkour, será feito o movimento normal
 	
@@ -313,13 +324,18 @@ func _up_movement_input():
 		# Se estiver no ar
 		else:
 			# Se estiver com uma parede ATRÁS do jogador
-			if (backwardsClimb):
-				# TODO -
-				print("BACKWARDS CLIMB")
-				print(backwardRaycast._get_collision_distance())
+			if (backwardsClimb and Input.is_action_pressed("forward")):
+				
+				# Adicionar velocidade na direção que o jogador está vendo
+				velocity.x = direction.x * wallclimb_horizontal_force
+				velocity.z = direction.z * wallclimb_horizontal_force
+
+				# Adicionar velocidade na vertical
+				velocity.y = wallclimb_vertical_force
+
+				return
 
 			# Se estiver com uma parede na frente
-			## TODO
 			if (climb):
 				
 				# Pegar o ponto da parede
@@ -385,23 +401,28 @@ func _air_climb_edges():
 		# Definir a posição do objetivo
 		climb_target_pos = airClimb._get_new_climb_pos(region_climb)
 
-func _fast_turn():
+func _fast_turn(delta):
 	## PRIMEIRO DE TUDO, VERIFICAR SE OUTRAS AÇÕES ESTÃO SENDO REALIZADAS
 	# Se o jogador já estiver virando
 	if turning:
-
-		## REALIZAR A MOVIMENTAÇÃO TODO TERMINAR
-
-		#
+		# Realizar rotação de forma mais suave
 		head.rotation.y = lerp_angle(head.rotation.y, target_head_rotation, 0.3)
 
+		# Calcular quanto tempo o jogador está virando
+		turning_time += delta
 
-		# Caso o jogador tenha virado
-		if rad_to_deg(head.rotation.y) == rad_to_deg(target_head_rotation):
+		# Parar a rotação
+		if turning_time >= 0.28:
+
+			# Desativar o estado de girando
 			turning = false
+
+			# Anular as rotações
 			initial_head_rotation = null
 			target_head_rotation = null
 
+			# Permitir o jogador que olhe novamente
+			can_look = true
 		return
 
 	# o jogador não pode virar enquanto realiza vault
@@ -410,9 +431,6 @@ func _fast_turn():
 	
 	# Se o jogador pressionar o botão de virar
 	if Input.is_action_just_pressed("fast_turn"):
-
-		## TODO IMPLEMENTAR ESSA PORRA LOGO
-		print("QUICK TURN")
 
 		# Habilitar o estado de rotação
 		turning = true
@@ -425,7 +443,12 @@ func _fast_turn():
 
 		# Resetar a corrida do jogador
 		running_time = 0
-		
+
+		# Impedir o jogador de poder olhar em volta
+		can_look = false
+
+		# Contar quanto tempo o jogador está virando
+		turning_time = 0
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
@@ -443,7 +466,7 @@ func _physics_process(delta):
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var input_dir = Input.get_vector("left", "right", "forward", "backward")
-	var direction = (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	direction = (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	# Calcular a corrida automatica
 	_calculate_auto_running(delta)
@@ -455,10 +478,10 @@ func _physics_process(delta):
 	_dash_input()
 	
 	# Calcular o movimento
-	_player_move(delta, direction)
+	_player_move(delta)
 
 	# Verifica se o jogador apertou a tecla para virar rapidamente
-	_fast_turn()
+	_fast_turn(delta)
 	
 	# Head bob
 	t_bob += delta * velocity.length() * float(is_on_floor())

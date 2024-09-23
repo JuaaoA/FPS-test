@@ -68,6 +68,14 @@ size = Vector3(1.33008, 1, 1.45947)
 transform = Transform3D(5.69337, 0, 0, 0, 5.69337, 0, 0, 0, 5.69337, 9.35502, -2.21432, -5.45441)
 use_collision = true
 
+[node name="Box5" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(7.62645, 0, 0, 0, 26.2279, 0, 0, 0, 5.69337, 22.8331, 6.6786, -16.1579)
+use_collision = true
+
+[node name="Box6" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(7.62645, 0, 0, 0, 26.2279, 0, 0, 0, 5.69337, 22.5415, 6.75035, -3.45931)
+use_collision = true
+
 [node name="Wall" type="CSGBox3D" parent="Enviroment"]
 transform = Transform3D(71.4495, 0, 0, 0, 5.69337, 0, 0, 0, 0.736592, -11.5709, 2.18984, -19.3046)
 material_override = SubResource("StandardMaterial3D_ai502")
@@ -147,3 +155,4 @@ use_collision = true
 size = Vector3(1.07092, 1, 1)
 
 [node name="Player" parent="." instance=ExtResource("1_pqmdv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.72349, -0.372417, -0.698689)
