@@ -406,7 +406,7 @@ func _fast_turn(delta):
 	# Se o jogador já estiver virando
 	if turning:
 		# Realizar rotação de forma mais suave
-		head.rotation.y = lerp_angle(head.rotation.y, target_head_rotation, 0.3)
+		head.rotation.y = lerp_angle(head.rotation.y, target_head_rotation, 0.4)
 
 		# Calcular quanto tempo o jogador está virando
 		turning_time += delta
@@ -479,14 +479,14 @@ func _physics_process(delta):
 	
 	# Calcular o movimento
 	_player_move(delta)
-
+	
 	# Verifica se o jogador apertou a tecla para virar rapidamente
 	_fast_turn(delta)
 	
 	# Head bob
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera.transform.origin = _headbob(t_bob)
-
+	
 	# FOV
 	_change_fov(delta)
 	
