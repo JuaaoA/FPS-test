@@ -1,8 +1,8 @@
 extends CharacterBody3D
 
 # Constantes para corrida
-const faster_run_speed = 37.0
-const run_speed = 15.6
+const faster_run_speed = 12
+const run_speed = 8.0
 const walk_speed = 4.0
 
 # Segundos para ativar a corrida
@@ -278,6 +278,24 @@ func _player_move(delta):
 		velocity.x = lerp(velocity.x, direction.x * current_speed, delta * 1.5)
 		velocity.z = lerp(velocity.z, direction.z * current_speed, delta * 1.5)
 
+func _slower_speed_moves(maximum_trigger, multiplier, stop_y_axis=false):
+	## Verificar se a velocidade do jogador ta alta demais, de acordo com
+	## o trigger máximo
+	
+	# EIXO X
+	if (abs(velocity.x) > maximum_trigger):
+		# Multiplicar a velocidade e diminuir
+		velocity.x *= multiplier
+	
+	# EIXO Z
+	if (abs(velocity.z) > maximum_trigger):
+		# Multiplicar a velocidade e diminuit
+		velocity.z *= multiplier
+	
+	# EIXO Y
+	if (stop_y_axis):
+		velocity.y *= multiplier
+
 func _up_movement_input():
 	## Evitar o botão caso já esteja realizando ações
 	# VAULT
@@ -319,6 +337,9 @@ func _up_movement_input():
 					# Definir uma posição que o jogador terminará o vault
 					vault_last_pos = vaultPositioner._get_new_vault_pos()
 					
+					# Diminuir a velocidade se o jogador tiver muito rapido
+					_slower_speed_moves(6, 0.5)
+					
 					# Evitar que um pulo normal seja dado
 					return
 		# Se estiver no ar
@@ -329,12 +350,12 @@ func _up_movement_input():
 				# Adicionar velocidade na direção que o jogador está vendo
 				velocity.x = direction.x * wallclimb_horizontal_force
 				velocity.z = direction.z * wallclimb_horizontal_force
-
+				
 				# Adicionar velocidade na vertical
 				velocity.y = wallclimb_vertical_force
-
+				
 				return
-
+				
 			# Se estiver com uma parede na frente
 			if (climb):
 				
@@ -347,7 +368,7 @@ func _up_movement_input():
 				# Distancia entre a parede e o jogador máxima
 				var wallclimb_trigger_distance = 1.60
 				
-				# DEBUG -
+				# DEBUG - TODO
 				print("CLIMBING")
 				print(wall_distance_to_player)
 				
@@ -396,6 +417,9 @@ func _air_climb_edges():
 		## INICIAR PROCESSO PARA PEGAR O PONTO DESTINO DE ESCALADA
 		# Definir que o jogador está escalando
 		climbing = true
+		
+		## DIMINUIR A VELOCIDADE DO JOGADOR PARA EVITAR BUGS
+		_slower_speed_moves(6, 0.4, true)
 		
 		## PEGAR O PONTO OBJETIVO PARA O JOGADOR IR
 		# Definir a posição do objetivo
@@ -470,6 +494,8 @@ func _physics_process(delta):
 	
 	# Calcular a corrida automatica
 	_calculate_auto_running(delta)
+	
+	print(velocity)
 	
 	# Após calcular, aplicar a corrida automática
 	_auto_running()
