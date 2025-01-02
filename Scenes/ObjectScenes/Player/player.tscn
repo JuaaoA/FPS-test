@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cea1fj03s3tek"]
+[gd_scene load_steps=10 format=3 uid="uid://cea1fj03s3tek"]
 
 [ext_resource type="Script" path="res://Scripts/Player/PlayerControl.gd" id="1_lwoke"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_csygn"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTriggers.gd" id="4_ty5oa"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycastPositioner.gd" id="4_utwxi"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTrigger.gd" id="5_pvwo3"]
+[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/Wallrun/wall_run_trigger.gd" id="7_arv3l"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lot0v"]
 
@@ -75,6 +76,18 @@ script = ExtResource("5_pvwo3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
 target_position = Vector3(0, 0, 1)
 script = ExtResource("5_pvwo3")
+
+[node name="WallRunTriggers" type="Node3D" parent="PlayerHead/PlayerTriggers"]
+
+[node name="WallRunRightRaycast" type="RayCast3D" parent="PlayerHead/PlayerTriggers/WallRunTriggers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+target_position = Vector3(0.9, 0, 0)
+script = ExtResource("7_arv3l")
+
+[node name="WallRunLeftRaycast" type="RayCast3D" parent="PlayerHead/PlayerTriggers/WallRunTriggers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+target_position = Vector3(-0.9, 0, 0)
+script = ExtResource("7_arv3l")
 
 [node name="VaultRaycastPositioner" type="Node3D" parent="PlayerHead"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25489, -1.80083)

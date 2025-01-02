@@ -124,6 +124,21 @@ transform = Transform3D(0.428342, 2.06263, 21.4008, -0.33155, 2.04612, -21.5898,
 use_collision = true
 size = Vector3(1.07092, 1, 1)
 
+[node name="stairs9" type="CSGBox3D" parent="Enviroment"]
+transform = Transform3D(0.411598, 0.724112, 7.64893, -9.6084, 0.00261112, 0.632664, 0.379974, -0.718348, 7.7126, -33.4938, -0.327544, 12.4305)
+use_collision = true
+size = Vector3(1.07092, 1, 1)
+
+[node name="stairs10" type="CSGBox3D" parent="Enviroment"]
+transform = Transform3D(0.207247, 0.963264, 3.57021, -9.6084, 0.00261112, 0.632664, 0.520424, -0.335388, 10.2588, -35.6192, -0.727715, 7.05845)
+use_collision = true
+size = Vector3(1.07092, 1, 1)
+
+[node name="stairs11" type="CSGBox3D" parent="Enviroment"]
+transform = Transform3D(0.0473103, 1.01914, 0.439624, -9.6084, 0.00261112, 0.632664, 0.558171, -0.0414323, 10.8534, -34.6208, -0.776286, 2.8819)
+use_collision = true
+size = Vector3(1.07092, 1, 1)
+
 [node name="stairs2" type="CSGBox3D" parent="Enviroment"]
 transform = Transform3D(0.69156, 0, 0, 0, 0.310416, 0, 0, 0, 2.36454, -13.5874, -0.332641, 9.20831)
 use_collision = true
