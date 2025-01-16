@@ -104,7 +104,7 @@ size = Vector3(1.08545, 1, 1)
 transform = Transform3D(5.69337, 0, 0, 0, 5.69337, 0, 0, 0, 5.69337, 2.46728, -1.64113, -6.40881)
 use_collision = true
 
-[node name="Box3" type="CSGBox3D" parent="Enviroment"]
+[node name="Box3" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(5.69337, 0, 0, 0, 5.69337, 0, 0, 0, 5.69337, -6.12477, 0.159555, -8.16707)
 use_collision = true
 size = Vector3(0.853027, 1, 1)

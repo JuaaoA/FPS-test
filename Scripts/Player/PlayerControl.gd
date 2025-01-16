@@ -71,6 +71,11 @@ var wallclimb_vertical_force = 8
 var initial_head_rotation = null
 var target_head_rotation = null
 
+# CROUCH
+var original_y_size
+var crouching_y_size
+var crouching_speed
+
 # BOLEANAS
 var wallrunning = false
 var climbing = false
@@ -78,6 +83,10 @@ var vaulting = false
 var enable_gravity = true
 var can_look = true
 var turning = false
+var crouching = false
+
+# Objetos para o crouching
+@onready var player_collider = $PlayerCollider
 
 # Objetos da camera e cabeça
 @onready var head = $PlayerHead
@@ -96,6 +105,12 @@ func _ready():
 	# Deixar o mouse travado ao iniciar o jogo
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+	# Definir o tamanho original do colisor do jogador
+	original_y_size = player_collider.transform.basis.get_scale().y
+
+	# Definir o tamanho agachado do colisor do jogador
+	crouching_y_size = original_y_size * 0.40
+
 func _unhandled_input(event):
 	
 	# Se o evento que acontecer for um movimento de mouse e se o jogador pode olhar
@@ -112,7 +127,7 @@ func _calculate_auto_running(delta):
 	# Iniciar corrida automática
 	# O jogador correrá automaticamente após andar por alguns segundos
 	# Primeiro, verificar se o jogador está pressionando para frente e não parou
-	if Input.is_action_pressed("forward") and velocity.x:
+	if Input.is_action_pressed("forward") and (velocity.x + velocity.z):
 		
 		# Aumentar o tempo que o jogador está andando/correndo
 		running_time += delta # delta conta em segundos
@@ -492,11 +507,42 @@ func _fast_turn(delta):
 		# Guardar rotação do jogador
 		initial_head_rotation = head.rotation.y
 
-		# Definir o ponto alvo para o jogador girar
-		target_head_rotation = initial_head_rotation + deg_to_rad(180)
+		# Se o jogador estiver em wallrun
+		if (wallrunning and wallrun_wall_normal != null):
 
-		# Resetar a corrida do jogador
-		running_time = 0
+			var wallrun_point;
+			var wallrun_point_offset = 0;
+			# Determinar qual lado o wallrun está
+			match (wallrun_wall_direction):
+
+				"right":
+					wallrun_point = wallrun_right.get_point()
+					wallrun_point_offset = deg_to_rad(110)
+
+				"left":
+					wallrun_point = wallrun_left.get_point()
+					wallrun_point_offset = deg_to_rad(-110)
+
+			# Se o ponto for nulo
+			if (wallrun_point == null):
+				# Cancelar tudo
+				turning = false
+				initial_head_rotation = null
+				return
+
+			# Procurar em que ângulo está a parede
+			var wall_angle = position.angle_to(wallrun_point) + wallrun_point_offset
+
+			# Determinar target com o novo angulo
+			target_head_rotation = initial_head_rotation + wall_angle
+		
+		## Caso NÃO ESTEJA EM WALLRUN
+		else:
+			# Definir o ponto alvo para o jogador girar
+			target_head_rotation = initial_head_rotation + deg_to_rad(180)
+
+			# Resetar a corrida do jogador
+			running_time = 0
 
 		# Impedir o jogador de poder olhar em volta
 		can_look = false
@@ -525,8 +571,8 @@ func _wallrun_move():
 	if (wallrun_wall_normal == null):
 		return
 	
-	## ISSO DEU CERTO SUA ANTA AGORA MELHORA ISSO
-	direction = -wallrun_wall_normal.get_normal() * 7
+	# Fazer o jogador andar rente a parede
+	direction = -wallrun_wall_normal.get_normal() * 7	
 
 func _wallrun_trigger():
 	## Impedir o wallrun de acontecer
@@ -625,6 +671,9 @@ func _exit_wallrun(jumping : bool):
 	# Desligar Wallrun
 	wallrunning = false
 
+	# Iniciar cooldown para evitar bugs na parede
+	post_wallrun_cooldown_current = 0
+
 	# Se não for pulando
 	if (not jumping):
 		return
@@ -655,9 +704,6 @@ func _exit_wallrun(jumping : bool):
 	# Por fim, deixar nulo alguns detalhes
 	wallrun_wall_normal = null
 	wallrun_wall_direction = null
-
-	# Iniciar cooldown para evitar bugs na parede
-	post_wallrun_cooldown_current = 0	
 
 func _tilt_head():
 	# Se estiver em wallrun
@@ -694,6 +740,33 @@ func _post_wallrun_cooldown_add(delta):
 func _check_post_wallrun_cooldown():
 	return post_wallrun_cooldown_current >= post_wallrun_cooldown
 
+func _crouch_input():
+	# Definir se não está realizando outras ações
+	if (wallrunning or vaulting or climbing or not is_on_floor()):
+		# Não está agachando
+		crouching = false
+
+		# Impedir o jogador de agachar
+		return
+	
+	# Se não, Verificar se o botão está apertado
+	print(Input.is_action_pressed("crouch"))
+
+func _crouch_action():
+	
+	var collider_scale = player_collider.transform.basis.get_scale()
+
+	# TODO TERMINAR ESSA PORRA
+	if (not crouching):
+		
+		#
+		#player_collider.transform.basis.scale = Vector3(collider_scale.x, original_y_size, collider_scale.z)
+
+		return
+	
+	# Se não
+	#player_collider.transform.basis.scale = Vector3(collider_scale.x, crouching_y_size, collider_scale.z)
+
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
 	
@@ -729,10 +802,16 @@ func _physics_process(delta):
 
 	# Após calcular, aplicar a corrida automática
 	_auto_running()
-	
+
 	# Aplicar o dash
 	_dash_input()
-	
+
+	# Input do agachar
+	_crouch_input()
+
+	# Aplicar o agachar caso usuário esteja 
+	_crouch_action()
+
 	# Calcular o movimento
 	_player_move(delta)
 	
