@@ -50,13 +50,64 @@ size = Vector3(1, 1, 0.980591)
 transform = Transform3D(19.1005, 0, 0, 0, 6.63076, 0, 0, 0, 6.15323, 0, 0, 25.3111)
 use_collision = true
 
+[node name="Climbable3" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(19.1005, 0, 0, 0, 1.56907, 0, 0, 0, 6.15323, 0.0512953, 8.68235, 24.7297)
+use_collision = true
+size = Vector3(0.994629, 1, 1.18896)
+
+[node name="Climbable6" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(19.3195, 0, 0, 0, 1.58706, 0, 0, 0, 8.87008, 8.72942, 13.8625, 25.1524)
+use_collision = true
+size = Vector3(1.24286, 1, 0.963379)
+
+[node name="Climbable10" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(19.3195, 0, 0, 0, 1.58706, 0, 0, 0, 8.87008, 5.65666, 19.1607, 25.2661)
+use_collision = true
+size = Vector3(1.56096, 0.427734, 0.937744)
+
+[node name="Climbable9" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(19.3195, 0, 0, 0, 1.58706, 0, 0, 0, 8.87008, 32.1022, 32.1236, 18.711)
+use_collision = true
+size = Vector3(0.434738, 1, 2.15094)
+
+[node name="Climbable12" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(19.3195, 0, 0, 0, 1.58706, 0, 0, 0, 8.87008, 25.904, 35.8072, -1.22098)
+use_collision = true
+size = Vector3(0.434738, 2.22852, 0.896622)
+
+[node name="Climbable4" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(0.299004, 0, 0, 0, 6.69825, 0, 0, 0, 9.29183, 1.40691, 13.639, 25.1569)
+use_collision = true
+size = Vector3(1, 0.681641, 0.912964)
+
+[node name="Climbable5" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(0.299004, 0, 0, 0, 10.3693, 0, 0, 0, 6.27244, -9.26914, 13.6885, 24.7569)
+use_collision = true
+size = Vector3(1, 1.0321, 1.16748)
+
+[node name="Climbable7" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(0.299004, 0, 0, 0, 10.3693, 0, 0, 0, 6.27244, 27.7973, 23.254, 24.0184)
+use_collision = true
+size = Vector3(1, 1.87451, 1.34717)
+
+[node name="Climbable11" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(0.299004, 0, 0, 0, 10.3693, 0, 0, 0, 6.27244, 36.0978, 36.7406, 6.06386)
+use_collision = true
+size = Vector3(1, 0.813232, 7.23016)
+
+[node name="Climbable8" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(0.299004, 0, 0, 0, 10.3693, 0, 0, 0, 6.27244, 20.8683, 29.976, 24.6657)
+use_collision = true
+size = Vector3(1, 2.15051, 1.14078)
+
 [node name="Climbable2" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(7.51274, 0, 0, 0, 7.60504, 0, 0, 0, 6.15323, 22.97, 0, 25.3111)
 use_collision = true
 
 [node name="wallrun2" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
-transform = Transform3D(37.9995, 0, 0, 0, 11.9586, 0, 0, 0, 1.30605, 14.2468, 3.49245, 28.7959)
+transform = Transform3D(37.9995, 0, 0, 0, 11.9586, 0, 0, 0, 1.30605, 11.8533, 8.4853, 28.7959)
 use_collision = true
+size = Vector3(1.12598, 1.83502, 1)
 
 [node name="Ground" type="CSGBox3D" parent="Enviroment"]
 transform = Transform3D(-58.3845, 0, 0, 0, 0.384721, 0, 0, 0, -39.9722, -11.6397, -0.541967, 9.5104)
@@ -67,6 +118,11 @@ size = Vector3(1.33008, 1, 1.45947)
 [node name="Box" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(5.69337, 0, 0, 0, 5.69337, 0, 0, 0, 5.69337, 9.35502, -2.21432, -5.45441)
 use_collision = true
+
+[node name="Box7" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
+transform = Transform3D(5.69337, 0, 0, 0, 5.69337, 0, 0, 0, 5.69337, -21.4893, 1.4501, -0.51663)
+use_collision = true
+size = Vector3(1, 0.16, 1)
 
 [node name="Box5" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(7.62645, 0, 0, 0, 26.2279, 0, 0, 0, 5.69337, 22.8331, 6.6786, -16.1579)

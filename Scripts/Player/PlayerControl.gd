@@ -34,12 +34,13 @@ const FOV_CHANGE = 1.3
 # Constantes para a cabeça mexer ao andar
 const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
+var current_BOB_FREQ = BOB_FREQ
 var t_bob = 0.0
+var t_bob_enabled = true
 
 var t_target = 0
 
 # Gravidades
-
 # Gravidade normal, sem o jogador estar escalando ou realizando wallrun
 var normal_gravity = 9.8
 
@@ -74,7 +75,15 @@ var target_head_rotation = null
 # CROUCH
 var original_y_size
 var crouching_y_size
-var crouching_speed
+var crouching_speed = 2.0
+var crouch_animation_speed = 6
+
+# SLIDE
+var slide_deceleration = 8
+var slide_speed_multiplier = 1.8
+var slide_current_speed
+var slide_direction_lock
+var slide_head_tilt = 0.12
 
 # BOLEANAS
 var wallrunning = false
@@ -84,6 +93,7 @@ var enable_gravity = true
 var can_look = true
 var turning = false
 var crouching = false
+var crouch_sliding = false
 
 # Objetos para o crouching
 @onready var player_collider = $PlayerCollider
@@ -101,6 +111,9 @@ var crouching = false
 @onready var wallrun_right = $PlayerHead/PlayerTriggers/WallRunTriggers/WallRunRightRaycast
 @onready var wallrun_left = $PlayerHead/PlayerTriggers/WallRunTriggers/WallRunLeftRaycast
 
+@export  var player_animator : AnimationPlayer
+@export var crouch_getUp_cast : ShapeCast3D
+
 func _ready():
 	# Deixar o mouse travado ao iniciar o jogo
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -110,6 +123,9 @@ func _ready():
 
 	# Definir o tamanho agachado do colisor do jogador
 	crouching_y_size = original_y_size * 0.40
+
+	# Evitar que o cast de levantar considere o jogador
+	#crouch_getUp_cast.add_exception($".")
 
 func _unhandled_input(event):
 	
@@ -126,8 +142,8 @@ func _unhandled_input(event):
 func _calculate_auto_running(delta):
 	# Iniciar corrida automática
 	# O jogador correrá automaticamente após andar por alguns segundos
-	# Primeiro, verificar se o jogador está pressionando para frente e não parou
-	if Input.is_action_pressed("forward") and (velocity.x + velocity.z):
+	# Primeiro, verificar se o jogador está pressionando para frente e não parou e não está agachado
+	if Input.is_action_pressed("forward") and (velocity.x + velocity.z) and not crouching:
 		
 		# Aumentar o tempo que o jogador está andando/correndo
 		running_time += delta # delta conta em segundos
@@ -137,8 +153,6 @@ func _calculate_auto_running(delta):
 		
 		# Retornar o running time para 0
 		running_time = 0
-	
-	#print(running_time)
 
 func _apply_gravity(delta):
 	# Se não estiver no chão
@@ -164,6 +178,10 @@ func _auto_running():
 
 func _dash_input():
 	
+	# Se está agachado
+	if (crouching):
+		return
+
 	# Caso jogador pressione dash e tempo de corrida for menor que o trigger de corrida
 	var dash_input = Input.is_action_just_pressed("dash")
 	if dash_input and running_time < trigger_run and is_on_floor():
@@ -174,9 +192,15 @@ func _dash_input():
 
 func _headbob(time):
 	var pos = Vector3.ZERO
-	pos.y = sin(time * BOB_FREQ) * BOB_AMP
-	pos.x = cos(time * BOB_FREQ / 2) * BOB_AMP
+	pos.y = sin(time * current_BOB_FREQ) * BOB_AMP
+	pos.x = cos(time * current_BOB_FREQ / 2) * BOB_AMP
 	return pos
+
+func _disable_headbob():
+	current_BOB_FREQ = 0
+
+func _enable_headbob():
+	current_BOB_FREQ = BOB_FREQ
 
 func _change_fov(delta):
 	# Limitar o valor de velocidade para realizar o calculo
@@ -270,6 +294,9 @@ func _player_move(delta):
 	# Desativar movimento caso o jogador esteja em wallrun
 	if (wallrunning):
 		return
+	
+	if (crouch_sliding):
+		return
 
 	## MOVIMENTOS DE PARKOUR
 	# Se o jogador estiver em vault
@@ -333,6 +360,11 @@ func _up_movement_input():
 	# VAULT
 	if (vaulting):
 		# Retornar pra evitar um pulo enquanto realiza o vault
+		return
+	
+	# CROUCH
+	# Impedir caso tenha algo em cima do jogador agachado
+	if (crouch_getUp_cast.is_colliding() && crouching):
 		return
 	
 	## Realizar movimentos
@@ -432,6 +464,10 @@ func _air_climb_edges():
 
 	# Caso tenha feito wallrun recentemente
 	if (not _check_post_wallrun_cooldown()):
+		return
+	
+	# Caso esteja agachando
+	if (crouching):
 		return
 	
 	## DETECTAR POSSÍVEIS PAREDES AGARRÁVEIS
@@ -591,6 +627,10 @@ func _wallrun_trigger():
 	# Velocidade não pode ser muito baixa
 	if (abs(velocity.x) + abs(velocity.z) <= 2):
 		return
+	
+	# Evitar que um wallrun aconteça enquanto o jogador vira
+	if (turning):
+		return
 
 	## Direita
 	if (wallrun_right.check_raycast_collision()):
@@ -726,6 +766,15 @@ func _tilt_head():
 		# Impedir de continuar
 		return
 	
+	# Se estiver deslizando
+	if (crouch_sliding):
+
+		# Rotacionar cabeça
+		head.rotation.z = lerp_angle(head.rotation.z, slide_head_tilt, 0.2)
+
+		# Impedir de continuar
+		return
+
 	# Se nada disso estiver conforme
 	head.rotation.z = lerp_angle(head.rotation.z, 0, 0.2)
 
@@ -744,28 +793,103 @@ func _crouch_input():
 	# Definir se não está realizando outras ações
 	if (wallrunning or vaulting or climbing or not is_on_floor()):
 		# Não está agachando
-		crouching = false
+		_disable_crouch()
 
 		# Impedir o jogador de agachar
 		return
 	
 	# Se não, Verificar se o botão está apertado
-	print(Input.is_action_pressed("crouch"))
+	if (Input.is_action_pressed("crouch")):
+		# Agachar
+		_enable_crouch()
+	else:
+		# Sair agachar
+		_disable_crouch()
 
-func _crouch_action():
-	
-	var collider_scale = player_collider.transform.basis.get_scale()
-
-	# TODO TERMINAR ESSA PORRA
-	if (not crouching):
-		
-		#
-		#player_collider.transform.basis.scale = Vector3(collider_scale.x, original_y_size, collider_scale.z)
-
+func _enable_crouch():
+	# Verificar se o jogador já está agachando
+	if (crouching):
 		return
 	
-	# Se não
-	#player_collider.transform.basis.scale = Vector3(collider_scale.x, crouching_y_size, collider_scale.z)
+	# Se não, Ativar crouch
+	crouching = true
+
+	# Iniciar animação crouch
+	player_animator.play("crouch", -1, crouch_animation_speed)
+
+	# Verificar se o jogador não está correndo
+	if (running_time <= trigger_run):
+		# Impedir de continuar
+		return
+	
+	# Se não, realizar o crouch slide
+	_start_crouch_slide()
+
+func _disable_crouch():
+	# Verificar se o jogador não está agachando
+	if (not crouching):
+		return
+	
+	# Se não houver nenhum objeto acima do jogador obstruindo
+	print(crouch_getUp_cast.is_colliding())
+	if (crouch_getUp_cast.is_colliding()):
+		return
+	
+	# Se não, desativar crouch
+	crouching = false
+
+	# Desativar slide caso esteja
+	crouch_sliding = false
+
+	# Se ao deslizar, o jogador estiver mais rapido que o trigger de corrida
+	if (abs(velocity.x) + abs(velocity.z) > faster_run_speed * 1.65):
+
+		# Definir o running time pra corrida normal
+		running_time = trigger_run
+
+	# Iniciar animação uncrouch
+	player_animator.play("crouch", -1, -crouch_animation_speed, true)
+
+	# Caso esteja desabilitado, iniciar denovo a sensação dos passos
+	_enable_headbob()
+
+func _start_crouch_slide():
+	# Determinar que está deslizando
+	crouch_sliding = true
+
+	# Travar a direção do movimento
+	slide_direction_lock = direction
+
+	# Multiplicar a velocidade do jogador
+	velocity.x *= slide_speed_multiplier
+	velocity.z *= slide_speed_multiplier
+
+	# Definir a velocidade do deslize, a da corrida
+	slide_current_speed = current_speed
+
+	# Desabilitar a sensação dos passos
+	_disable_headbob()
+
+func _crouch_slide(delta):
+	# Caso não esteja deslizando agachado
+	if (not crouch_sliding):
+		return
+	
+	# Deslizar o jogador
+	velocity.x = lerp(velocity.x, slide_direction_lock.x * slide_current_speed, delta * 1.5)
+	velocity.z = lerp(velocity.z, slide_direction_lock.z * slide_current_speed, delta * 1.5)
+
+	# Desacelerar o deslize
+	slide_current_speed -= slide_deceleration * delta
+
+	# Verificar se a velocidade do jogador está menor do que a corrida normal
+	if (abs(velocity.x) + abs(velocity.z) <= trigger_run):
+
+		# Definir o slide falso
+		crouch_sliding = false
+
+		# Habilitar novamente a sensação de passos
+		_enable_headbob()
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
@@ -806,11 +930,11 @@ func _physics_process(delta):
 	# Aplicar o dash
 	_dash_input()
 
-	# Input do agachar
+	# Input e ação de agachar e deslizar
 	_crouch_input()
 
-	# Aplicar o agachar caso usuário esteja 
-	_crouch_action()
+	# Ação de deslizar
+	_crouch_slide(delta)
 
 	# Calcular o movimento
 	_player_move(delta)
@@ -819,6 +943,8 @@ func _physics_process(delta):
 	_fast_turn(delta)
 	
 	# Head bob
+	# TODO - RESOLVER ISSO AQUI DE ACORDO COM A VELOCIDADE DO JOGADOR
+	# BASE = ANDAR = * 2
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera.transform.origin = _headbob(t_bob)
 	
