@@ -1,6 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://cgnefjwdic2x0"]
+[gd_scene load_steps=11 format=3 uid="uid://cgnefjwdic2x0"]
 
 [ext_resource type="PackedScene" uid="uid://cea1fj03s3tek" path="res://Scenes/ObjectScenes/Player/player.tscn" id="1_pqmdv"]
+[ext_resource type="Script" path="res://Scripts/Player/Reticle/ReticleManager.gd" id="2_s7bic"]
+[ext_resource type="Script" path="res://Scripts/Player/Reticle/CustomReticle.gd" id="3_uxkdq"]
+[ext_resource type="Texture2D" uid="uid://midsr31gl7ts" path="res://Sprites/Reticles/climb_indicator.png" id="3_xb3od"]
+[ext_resource type="Texture2D" uid="uid://crrisvjggp8gb" path="res://Sprites/Reticles/walljump_indicator.png" id="5_owwqe"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_y2v85"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -24,7 +28,7 @@ albedo_color = Color(0, 0, 1, 1)
 [node name="Level" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866025, -0.433013, 0.25, -0.300789, 0.850591, 0.431302, -0.399407, 0.298322, -0.866878, -0.692585, 4.38932, -1.49219)
+transform = Transform3D(-0.866025, -0.433013, 0.25, -0.300789, 0.85059, 0.431303, -0.399407, 0.298322, -0.866878, -0.697684, 4.38932, -1.51264)
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -227,3 +231,68 @@ size = Vector3(1.07092, 1, 1)
 
 [node name="Player" parent="." instance=ExtResource("1_pqmdv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.72349, -0.372417, -0.698689)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Reticle" type="CenterContainer" parent="UI" node_paths=PackedStringArray("RETICLE_LINES", "PLAYER")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_s7bic")
+RETICLE_LINES = [NodePath("Aim/Top"), NodePath("Aim/Right"), NodePath("Aim/Bottom"), NodePath("Aim/Left")]
+PLAYER = NodePath("../../Player")
+RETICLE_DISTANCE = 6.0
+
+[node name="Aim" type="Node2D" parent="UI/Reticle"]
+
+[node name="Top" type="Line2D" parent="UI/Reticle/Aim"]
+points = PackedVector2Array(0, -5, 0, -15)
+width = 2.0
+
+[node name="Right" type="Line2D" parent="UI/Reticle/Aim"]
+points = PackedVector2Array(5, 0, 15, 0)
+width = 2.0
+
+[node name="Bottom" type="Line2D" parent="UI/Reticle/Aim"]
+points = PackedVector2Array(0, 5, 0, 15)
+width = 2.0
+
+[node name="Left" type="Line2D" parent="UI/Reticle/Aim"]
+points = PackedVector2Array(-15, 0, -5, 0)
+width = 2.0
+
+[node name="Ocuppied" type="Node2D" parent="UI/Reticle"]
+
+[node name="Line1" type="Line2D" parent="UI/Reticle/Ocuppied"]
+points = PackedVector2Array(-10, 10, 10, -10)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+
+[node name="Line2" type="Line2D" parent="UI/Reticle/Ocuppied"]
+points = PackedVector2Array(-10, -10, 10, 10)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+
+[node name="Custom" type="Node2D" parent="UI/Reticle"]
+script = ExtResource("3_uxkdq")
+sprites_list = Array[CompressedTexture2D]([ExtResource("3_xb3od"), ExtResource("5_owwqe")])
+
+[node name="ReticleSprite" type="Sprite2D" parent="UI/Reticle/Custom"]
+texture_filter = 1
+texture = ExtResource("3_xb3od")

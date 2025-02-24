@@ -95,6 +95,8 @@ var turning = false
 var crouching = false
 var crouch_sliding = false
 
+@export var reticle_show_movements = true
+
 # Objetos para o crouching
 @onready var player_collider = $PlayerCollider
 
@@ -420,6 +422,10 @@ func _up_movement_input():
 			# Se estiver com uma parede ATRÁS do jogador
 			if (backwardsClimb and Input.is_action_pressed("forward")):
 				
+				# Evitar walljump caso saia de um wallrun
+				if (post_wallrun_cooldown_current < post_wallrun_cooldown):
+					return
+
 				# Adicionar velocidade na direção que o jogador está vendo
 				velocity.x = direction.x * wallclimb_horizontal_force
 				velocity.z = direction.z * wallclimb_horizontal_force
@@ -890,6 +896,43 @@ func _crouch_slide(delta):
 
 		# Habilitar novamente a sensação de passos
 		_enable_headbob()
+
+func get_moviment_state():
+	# Verificar se as mãos estão ocupadas
+	if (climbing or vaulting):
+		return "hands_ocuppied"
+	
+	# Verificações
+	var on_floor = is_on_floor()
+	var backwardsClimb = backwardRaycast._check_raycast_collision()
+	var climb = climbRaycast._get_raycast_collision()
+	var forward = Input.is_action_pressed("forward")
+
+	# Verificar se possui outros movimentos disponíveis
+	# PARA WALLJUMP
+	if (not on_floor and backwardsClimb and forward and 
+	not wallrunning and not vaulting and 
+	post_wallrun_cooldown_current >= post_wallrun_cooldown):
+		return "walljump_indicator"
+
+	# PARA WALLCLIMB
+	if (not on_floor and climb and not wallrunning and not vaulting):
+		# Pegar o ponto da parede
+		var wall_point = climbRaycast._get_raycast_collision_point()
+				
+		# Calcular distancia entre o jogador e a parede
+		var wall_distance_to_player = (position - wall_point).length()
+				
+		# Distancia entre a parede e o jogador máxima
+		var wallclimb_trigger_distance = 1.60
+				
+		# Se a distancia entre a parede e o jogador for menor que a
+		# distância necessária para o trigger
+		if (wall_distance_to_player <= wallclimb_trigger_distance):
+			return "climb_indicator"
+
+	# TODO - VERIFICAR SE O JOGADOR ESTA ARMADO
+	return "armed"
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
