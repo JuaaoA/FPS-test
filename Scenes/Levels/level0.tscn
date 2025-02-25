@@ -142,7 +142,7 @@ material_override = SubResource("StandardMaterial3D_ai502")
 use_collision = true
 size = Vector3(1.08545, 1, 1)
 
-[node name="wall2" type="CSGBox3D" parent="Enviroment"]
+[node name="wall2" type="CSGBox3D" parent="Enviroment" groups=["obstacle"]]
 transform = Transform3D(-2.35179e-06, 0, 0.736592, 0, 5.69337, 0, -53.8027, 0, -3.21974e-08, 27.0736, 2.18984, 9.54974)
 material_override = SubResource("StandardMaterial3D_ai502")
 use_collision = true

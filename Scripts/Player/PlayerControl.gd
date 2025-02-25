@@ -256,7 +256,7 @@ func _climb_move(delta):
 	# Sair desse método caso não esteja escalando
 	if (climb_target_pos == null):
 		return
-	
+
 	## Movimentar suavemente até o ponto
 	# Calculo para a suavização
 	t_target += 0.3 * delta
