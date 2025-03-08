@@ -17,10 +17,11 @@ extends CenterContainer
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	# Redesenhar por frame
 	queue_redraw()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 
 	# Definir qual mira será mostrada
 	_define_crosshair()
@@ -28,9 +29,11 @@ func _process(delta):
 	# Ajustar linhas da mira, se tiver
 	adjust_aim_reticle_lines()
 
+# Desenhar mira
 func _draw():
 	draw_circle(Vector2(0, 0), DOT_RADIUS, DOT_COLOR)
 
+# Mira CUSTOMIZADA
 func _define_crosshair():
 	# Pegar nas infos do jogador o que o jogador está fazendo
 	var player_state = PLAYER.get_moviment_state()
@@ -82,12 +85,14 @@ func _activate_custom(state_crosshair):
 func _deactivate_custom():
 	aimCustom.visible = false
 
+# Mira OCUPADA
 func  _activate_ocuppied():
 	aimOcuppied.visible = true
 
 func  _deactivate_ocuppied():
 	aimOcuppied.visible = false
 
+# Mira ARMADA
 func _activate_aim():
 	aimReticle.visible = true
 
