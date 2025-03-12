@@ -85,6 +85,17 @@ var slide_current_speed
 var slide_direction_lock
 var slide_head_tilt = 0.12
 
+# QUEDA e ROLL
+var air_time = 0
+
+## ESSES VALORES DEPENDEM DO PERSONAGEM A SER JOGADO
+# Velocidade mínima de queda para poder usar o roll
+var min_trigger_roll_fall = -8
+# Velocidade mínima para o roll não servir mais e o jogador tomar dano numa queda
+var min_damage_fall = -12
+# Velocidade mínima para o jogador morrer numa queda
+var min_death_fall = -16
+
 # BOLEANAS
 var wallrunning = false
 var climbing = false
@@ -94,6 +105,7 @@ var can_look = true
 var turning = false
 var crouching = false
 var crouch_sliding = false
+var rolling = false
 
 @export var reticle_show_movements = true
 
@@ -934,6 +946,27 @@ func get_moviment_state():
 	# TODO - VERIFICAR SE O JOGADOR ESTA ARMADO
 	return "armed"
 
+func _verify_fall(delta):
+
+	# Se estiver no chão ou realizando algum movimento
+	if (is_on_floor() or wallrunning or vaulting or climbing):
+		
+		# Zerar o tempo no ar
+		air_time = 0
+
+		# Verificar
+
+		return
+
+	# Caso esteja no ar
+	# Aumentar o tempo no ar
+	air_time += delta
+
+	#
+	print("AIR TIME : ", air_time)
+	print("AIR VERTICAL SPEED : ", velocity.y)
+	pass
+
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
 	
@@ -984,6 +1017,9 @@ func _physics_process(delta):
 	
 	# Verifica se o jogador apertou a tecla para virar rapidamente
 	_fast_turn(delta)
+
+	# Verificar quedas
+	_verify_fall(delta)
 	
 	# Head bob
 	# TODO - RESOLVER ISSO AQUI DE ACORDO COM A VELOCIDADE DO JOGADOR
