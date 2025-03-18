@@ -87,10 +87,19 @@ var slide_head_tilt = 0.12
 
 # QUEDA e ROLL
 var air_time = 0
+var fall_damage_multiplier = 1.5
+var last_vertical_speed = 0
+var roll_speed = 5
+
+# Tempo em que o jogador segurou o agachar para rolar
+var time_holding_roll_key = 0
+
+# Jogador não pode apertar o botão de rolar cedo demais
+var time_limit_roll_key = 0.45
 
 ## ESSES VALORES DEPENDEM DO PERSONAGEM A SER JOGADO
 # Velocidade mínima de queda para poder usar o roll
-var min_trigger_roll_fall = -8
+var min_roll_fall = -8
 # Velocidade mínima para o roll não servir mais e o jogador tomar dano numa queda
 var min_damage_fall = -12
 # Velocidade mínima para o jogador morrer numa queda
@@ -106,6 +115,8 @@ var turning = false
 var crouching = false
 var crouch_sliding = false
 var rolling = false
+
+var canMove = true
 
 @export var reticle_show_movements = true
 
@@ -305,11 +316,8 @@ func _player_move(delta):
 	## Movimentos de parkour acontecem em prioridade, caso o jogador não esteja
 	## em nenhum movimento de parkour, será feito o movimento normal
 	
-	# Desativar movimento caso o jogador esteja em wallrun
-	if (wallrunning):
-		return
-	
-	if (crouch_sliding):
+	# Desativar movimento caso o jogador esteja em wallrun, deslizando ou rolando
+	if (wallrunning or crouch_sliding or rolling):
 		return
 
 	## MOVIMENTOS DE PARKOUR
@@ -379,6 +387,12 @@ func _up_movement_input():
 	# CROUCH
 	# Impedir caso tenha algo em cima do jogador agachado
 	if (crouch_getUp_cast.is_colliding() && crouching):
+		return
+	
+	# ROLL
+	# Impedir caso o jogador esteja rolando no chão
+	if (rolling):
+		# Retornar para evitar um pulo enquanto rola
 		return
 	
 	## Realizar movimentos
@@ -484,8 +498,8 @@ func _air_climb_edges():
 	if (not _check_post_wallrun_cooldown()):
 		return
 	
-	# Caso esteja agachando
-	if (crouching):
+	# Caso esteja agachando ou rolando
+	if (crouching or rolling):
 		return
 	
 	## DETECTAR POSSÍVEIS PAREDES AGARRÁVEIS
@@ -548,8 +562,8 @@ func _fast_turn(delta):
 			can_look = true
 		return
 
-	# o jogador não pode virar enquanto realiza vault
-	if vaulting or climbing:
+	# o jogador não pode virar enquanto realiza vault, enquanto escala ou está rolando
+	if vaulting or climbing or rolling:
 		return
 	
 	# Se o jogador pressionar o botão de virar
@@ -808,6 +822,11 @@ func _check_post_wallrun_cooldown():
 	return post_wallrun_cooldown_current >= post_wallrun_cooldown
 
 func _crouch_input():
+	# Impedir de agachar caso esteja rolando
+	if (rolling):
+		# Retornar
+		return
+
 	# Definir se não está realizando outras ações
 	if (wallrunning or vaulting or climbing or not is_on_floor()):
 		# Não está agachando
@@ -824,7 +843,7 @@ func _crouch_input():
 		# Sair agachar
 		_disable_crouch()
 
-func _enable_crouch():
+func _enable_crouch(after_roll=false):
 	# Verificar se o jogador já está agachando
 	if (crouching):
 		return
@@ -832,8 +851,10 @@ func _enable_crouch():
 	# Se não, Ativar crouch
 	crouching = true
 
-	# Iniciar animação crouch
-	player_animator.play("crouch", -1, crouch_animation_speed)
+	# Caso não esteja rolado, o jogador está em pé antes
+	if (not after_roll):
+		# Iniciar animação crouch
+		player_animator.play("crouch", -1, crouch_animation_speed)
 
 	# Verificar se o jogador não está correndo
 	if (running_time <= trigger_run):
@@ -911,7 +932,7 @@ func _crouch_slide(delta):
 
 func get_moviment_state():
 	# Verificar se as mãos estão ocupadas
-	if (climbing or vaulting):
+	if (climbing or vaulting or rolling):
 		return "hands_ocuppied"
 	
 	# Verificações
@@ -946,7 +967,13 @@ func get_moviment_state():
 	# TODO - VERIFICAR SE O JOGADOR ESTA ARMADO
 	return "armed"
 
+func get_vertical_speed():
+	return velocity.y
+
 func _verify_fall(delta):
+	# Se estiver rolando
+	if (rolling):
+		return
 
 	# Se estiver no chão ou realizando algum movimento
 	if (is_on_floor() or wallrunning or vaulting or climbing):
@@ -954,18 +981,112 @@ func _verify_fall(delta):
 		# Zerar o tempo no ar
 		air_time = 0
 
-		# Verificar
+		# Verificar se houve dano de queda e se rolou
+		_verify_fall_damage()
 
+		# Impedir de continuar
 		return
 
 	# Caso esteja no ar
 	# Aumentar o tempo no ar
 	air_time += delta
 
-	#
+	# Guardar velocidade vertical para depois
+	last_vertical_speed = get_vertical_speed()
+
+	# Se está segurando o botão de rolar
+	if (Input.is_action_pressed("crouch")):
+		# Contar tempo jogador segurando a tecla de rolar
+		time_holding_roll_key += delta
+	# Senão
+	else:
+		# Resetar o tempo segurando a tecla de rolar
+		time_holding_roll_key = 0
+
+	# DEBUG
 	print("AIR TIME : ", air_time)
-	print("AIR VERTICAL SPEED : ", velocity.y)
-	pass
+	print("AIR VERTICAL SPEED : ", get_vertical_speed())
+	print("HOLDING ROLL : ", time_holding_roll_key)
+
+func _verify_fall_damage():
+	# Verificar o intervalo do valor da velocidade
+	if (last_vertical_speed >= 0):
+		return
+
+	# Velocidade vertical ideal para apenas poder iniciar o rolamento
+	var roll_activated =  min_roll_fall >= last_vertical_speed and -last_vertical_speed > min_damage_fall
+	# Velocidade vertical para o jogador tomar dano
+	var damage_activated = min_damage_fall >= last_vertical_speed and -last_vertical_speed > min_death_fall
+	# Velocidade vertical para o jogador morrer
+	var death_fall_activated = min_death_fall >= last_vertical_speed
+
+	# Verificar o que acontecerá com o jogador nessa queda
+	match true:
+		death_fall_activated:
+			print("DEATH")
+		
+		damage_activated:
+			# Checar se está rolando
+			_check_roll_input()
+		
+		roll_activated:
+			# Checar se está rolando
+			_check_roll_input()
+			print("CAN ROLL ONLY")
+	
+	# Depois de aplicar, zerar velocidade vertical e o tempo apertando tecla roll
+	last_vertical_speed = 0
+	time_holding_roll_key = 0
+
+func _check_roll_input():
+	# Se não apertou a tecla de rolar ou apertou cedo demais
+	if (time_holding_roll_key <= 0 or time_holding_roll_key > time_limit_roll_key):
+		# Retornar falso, para que seja contabilizado dano
+		return false
+	
+	# Se não, o player executou o movimento de rolar corretamente
+	# Definir está rolando
+	rolling = true
+
+	# Desativar movimento olhar em volta
+	can_look = false
+
+	# Iniciar animação roll
+	player_animator.play("roll", -1, 1)
+
+func _roll_move(delta):
+	# Se não estiver rolando
+	if (not rolling):
+		# Impedir de continuar
+		return
+
+	# Se estiver definido rolando mas a animação de rolar ja terminou
+	if (player_animator.current_animation != "roll" and rolling):
+		# Desligar rolamento
+		rolling = false
+
+		# Voltar a olhar livremente
+		can_look = true
+
+		# Verificar se possui algo em cima do jogador para evitar bugs
+		if (crouch_getUp_cast.is_colliding()):
+			# Ativar o agachar com after roll
+			# Assim, o jogador passará do rolling para crouching suavemente
+			_enable_crouch(true)
+		else:
+			# Habilitar crouch
+			crouching = true;
+
+			# Desabilitar para iniciar a animação do jogador levantando
+			_disable_crouch()
+
+		# Impedir de continuar 
+		return
+
+	# Caso o contrário, movimentar o jogador para  frente
+	velocity.x = lerp(velocity.x, direction.x * roll_speed, delta * 1.5)
+	velocity.z = lerp(velocity.z, direction.z * roll_speed, delta * 1.5)
+		
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
@@ -1006,6 +1127,12 @@ func _physics_process(delta):
 	# Aplicar o dash
 	_dash_input()
 
+	# Verificar quedas e rolamento
+	_verify_fall(delta)
+
+	# Realizar o movimento de rolar
+	_roll_move(delta)
+
 	# Input e ação de agachar e deslizar
 	_crouch_input()
 
@@ -1017,9 +1144,6 @@ func _physics_process(delta):
 	
 	# Verifica se o jogador apertou a tecla para virar rapidamente
 	_fast_turn(delta)
-
-	# Verificar quedas
-	_verify_fall(delta)
 	
 	# Head bob
 	# TODO - RESOLVER ISSO AQUI DE ACORDO COM A VELOCIDADE DO JOGADOR

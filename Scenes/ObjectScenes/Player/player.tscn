@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cea1fj03s3tek"]
+[gd_scene load_steps=15 format=3 uid="uid://cea1fj03s3tek"]
 
 [ext_resource type="Script" path="res://Scripts/Player/PlayerControl.gd" id="1_lwoke"]
 [ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_csygn"]
@@ -91,10 +91,50 @@ tracks/2/keys = {
 "values": [Vector3(0, 1.62789, 0), Vector3(0, 1.072, 0)]
 }
 
+[sub_resource type="Animation" id="Animation_h8sfq"]
+resource_name = "roll"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerCollider:shape:height")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [2.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("PlayerCollider:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.00272322, 1.05603, -0.00882387), Vector3(-0.003, 0.5, -0.009)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PlayerHead:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.62789, 0), Vector3(0, 1.072, 0)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_u6mey"]
 _data = {
 "RESET": SubResource("Animation_gprns"),
-"crouch": SubResource("Animation_ph8sc")
+"crouch": SubResource("Animation_ph8sc"),
+"roll": SubResource("Animation_h8sfq")
 }
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_k3t3i"]
