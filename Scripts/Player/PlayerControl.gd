@@ -91,6 +91,11 @@ var fall_damage_multiplier = 1.5
 var last_vertical_speed = 0
 var roll_speed = 5
 
+var roll_animation_last_rotation = 0
+var roll_animation_rotation_target = 0
+var roll_animation_speed = 5.2
+var roll_animation = false
+
 # Tempo em que o jogador segurou o agachar para rolar
 var time_holding_roll_key = 0
 
@@ -1077,6 +1082,9 @@ func _roll_move(delta):
 			# Habilitar crouch
 			crouching = true;
 
+			# Definir velocidade em zero para evitar deslizar após levantar de um roll
+			velocity = Vector3(0, velocity.y, 0)
+
 			# Desabilitar para iniciar a animação do jogador levantando
 			_disable_crouch()
 
@@ -1086,7 +1094,32 @@ func _roll_move(delta):
 	# Caso o contrário, movimentar o jogador para  frente
 	velocity.x = lerp(velocity.x, direction.x * roll_speed, delta * 1.5)
 	velocity.z = lerp(velocity.z, direction.z * roll_speed, delta * 1.5)
-		
+
+func _start_roll_head():
+	# Verificar se está rolando
+	if (not rolling):
+		# Impedir de continuar
+		return
+
+	# Definir que animação de rolar está tocando
+	roll_animation = true
+	# Salvar ultima rotação em X
+	roll_animation_last_rotation = head.rotation.x
+	# Definir objetivo de rotação
+	roll_animation_rotation_target = -90
+
+	pass
+
+func _roll_head_move():
+	
+	# Evitar roll se estiver falso
+	if (not roll_animation):
+		# Impedir de continuar
+		return
+
+	head.rotation.x = lerp_angle(head.rotation.x, roll_animation_rotation_target, 0.1)
+
+	pass
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
