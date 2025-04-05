@@ -1,8 +1,8 @@
 [gd_scene load_steps=11 format=3 uid="uid://cgnefjwdic2x0"]
 
 [ext_resource type="PackedScene" uid="uid://cea1fj03s3tek" path="res://Scenes/ObjectScenes/Player/player.tscn" id="1_pqmdv"]
-[ext_resource type="Script" path="res://Scripts/Player/Reticle/ReticleManager.gd" id="2_s7bic"]
-[ext_resource type="Script" path="res://Scripts/Player/Reticle/CustomReticle.gd" id="3_uxkdq"]
+[ext_resource type="Script" uid="uid://dw4lpq3j8mjbt" path="res://Scripts/Player/Reticle/ReticleManager.gd" id="2_s7bic"]
+[ext_resource type="Script" uid="uid://cy4fj8rruygcb" path="res://Scripts/Player/Reticle/CustomReticle.gd" id="3_uxkdq"]
 [ext_resource type="Texture2D" uid="uid://midsr31gl7ts" path="res://Sprites/Reticles/climb_indicator.png" id="3_xb3od"]
 [ext_resource type="Texture2D" uid="uid://crrisvjggp8gb" path="res://Sprites/Reticles/walljump_indicator.png" id="5_owwqe"]
 

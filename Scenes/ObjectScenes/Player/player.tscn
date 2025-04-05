@@ -1,12 +1,12 @@
 [gd_scene load_steps=15 format=3 uid="uid://cea1fj03s3tek"]
 
-[ext_resource type="Script" path="res://Scripts/Player/PlayerControl.gd" id="1_lwoke"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_csygn"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/ClimbRaycast.gd" id="3_ab5ip"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTriggers.gd" id="4_ty5oa"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycastPositioner.gd" id="4_utwxi"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTrigger.gd" id="5_pvwo3"]
-[ext_resource type="Script" path="res://Scripts/Player/ParkourSystem/Raycasts/Wallrun/wall_run_trigger.gd" id="7_arv3l"]
+[ext_resource type="Script" uid="uid://crvuwydlbn7qe" path="res://Scripts/Player/PlayerControl.gd" id="1_lwoke"]
+[ext_resource type="Script" uid="uid://5tqqd71meww1" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycast.gd" id="2_csygn"]
+[ext_resource type="Script" uid="uid://nbccg65wishd" path="res://Scripts/Player/ParkourSystem/Raycasts/ClimbRaycast.gd" id="3_ab5ip"]
+[ext_resource type="Script" uid="uid://j72x6o0hn7nx" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTriggers.gd" id="4_ty5oa"]
+[ext_resource type="Script" uid="uid://nofg03cvlk0g" path="res://Scripts/Player/ParkourSystem/Raycasts/VaultRaycastPositioner.gd" id="4_utwxi"]
+[ext_resource type="Script" uid="uid://bqprx4tobj175" path="res://Scripts/Player/ParkourSystem/Raycasts/AirClimbTrigger.gd" id="5_pvwo3"]
+[ext_resource type="Script" uid="uid://du4rolatn0l3j" path="res://Scripts/Player/ParkourSystem/Raycasts/Wallrun/wall_run_trigger.gd" id="7_arv3l"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lot0v"]
 
@@ -132,9 +132,9 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_u6mey"]
 _data = {
-"RESET": SubResource("Animation_gprns"),
-"crouch": SubResource("Animation_ph8sc"),
-"roll": SubResource("Animation_h8sfq")
+&"RESET": SubResource("Animation_gprns"),
+&"crouch": SubResource("Animation_ph8sc"),
+&"roll": SubResource("Animation_h8sfq")
 }
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_k3t3i"]
@@ -228,7 +228,7 @@ script = ExtResource("4_utwxi")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_u6mey")
+&"": SubResource("AnimationLibrary_u6mey")
 }
 
 [node name="CrouchGetUpCast3D" type="ShapeCast3D" parent="."]
