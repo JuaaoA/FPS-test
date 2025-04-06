@@ -1,31 +1,31 @@
 extends CharacterBody3D
 
 # Constantes para corrida
-const faster_run_speed = 12
-const run_speed = 8.0
-const walk_speed = 4.0
+const faster_run_speed : int = 12
+const run_speed : float = 8.0
+const walk_speed : float = 4.0
 
 # Segundos para ativar a corrida
-const trigger_run = 5
-const trigger_faster_run = 10
+const trigger_run : int = 5
+const trigger_faster_run : int = 10
 
 # Variável para contar quanto tempo o jogador está correndo
-var running_time = 0
+var running_time : float = 0
 
 # Variável para contar quanto tempo o jogador está virando
-var turning_time = 0
+var turning_time : float = 0
 
 # Variável para o movimento de olhar do jogador
 var direction = 0
 
 # Constante para pulo
-const jump_velocity = 4.5
+const jump_velocity : float = 4.5
 
 # Constante para sensibilidade do olhar
-const sensitivity = 0.005
+const sensitivity : float = 0.005
 
 # Velocidade do jogador atual, só é usado quando o jogo está rodando
-var current_speed = 0
+var current_speed : float = 0
 
 # Constantes para o FOV
 const BASE_FOV = 80
@@ -36,23 +36,23 @@ const BOB_FREQ = 2.0
 const BOB_AMP = 0.08
 var current_BOB_FREQ = BOB_FREQ
 var t_bob = 0.0
-var t_bob_enabled = true
+var t_bob_enabled : bool = true
 
 var t_target = 0
 
 # Gravidades
 # Gravidade normal, sem o jogador estar escalando ou realizando wallrun
-var normal_gravity = 9.8
+var normal_gravity : float = 9.8
 
 # WALLRUN
-var wallrun_gravity = 5.5
+var wallrun_gravity : float = 5.5
 var wallrun_last_wall_distance = null
 var wallrun_wall_normal = null
 var wallrun_wall_direction = null
 var wallrun_min_vertical_velocity = -5
-var wallrun_head_tilt = 0.25
-var wallrun_horizontal_force = 3
-var wallrun_vertical_force = 7
+var wallrun_head_tilt : float = 0.25
+var wallrun_horizontal_force : float = 3
+var wallrun_vertical_force : float = 7
 
 # Esse cooldown evita outros movimentos quando o jogador sai do wallrun
 var post_wallrun_cooldown = 0.35
@@ -75,53 +75,51 @@ var target_head_rotation = null
 # CROUCH
 var original_y_size
 var crouching_y_size
-var crouching_speed = 2.0
-var crouch_animation_speed = 6
+var crouching_speed : float = 2.0
+var crouch_animation_speed : float = 6
 
 # SLIDE
-var slide_deceleration = 8
-var slide_speed_multiplier = 1.8
+var slide_deceleration : float = 8
+var slide_speed_multiplier : float = 1.8
 var slide_current_speed
 var slide_direction_lock
-var slide_head_tilt = 0.12
+var slide_head_tilt : float = 0.12
 
 # QUEDA e ROLL
-var air_time = 0
-var fall_damage_multiplier = 1.5
-var last_vertical_speed = 0
-var roll_speed = 5
+var air_time : float = 0
+var fall_damage_multiplier : float = 1.5
+var last_vertical_speed : float = 0
+var roll_speed : float = 5
 
-var roll_animation_last_rotation = 0
-var roll_animation_rotation_target = 0
-var roll_animation_speed = 5.2
-var roll_animation = false
+const roll_animation_speed : float = 10
+var roll_animation : bool = false
 
 # Tempo em que o jogador segurou o agachar para rolar
-var time_holding_roll_key = 0
+var time_holding_roll_key : float = 0
 
 # Jogador não pode apertar o botão de rolar cedo demais
-var time_limit_roll_key = 0.45
+var time_limit_roll_key : float = 0.45
 
 ## ESSES VALORES DEPENDEM DO PERSONAGEM A SER JOGADO
 # Velocidade mínima de queda para poder usar o roll
-var min_roll_fall = -8
+var min_roll_fall : int = -8
 # Velocidade mínima para o roll não servir mais e o jogador tomar dano numa queda
-var min_damage_fall = -12
+var min_damage_fall : int = -12
 # Velocidade mínima para o jogador morrer numa queda
-var min_death_fall = -16
+var min_death_fall : int = -16
 
 # BOLEANAS
-var wallrunning = false
-var climbing = false
-var vaulting = false
-var enable_gravity = true
-var can_look = true
-var turning = false
-var crouching = false
-var crouch_sliding = false
-var rolling = false
+var wallrunning : bool = false
+var climbing : bool = false
+var vaulting : bool = false
+var enable_gravity : bool = true
+var can_look : bool = true
+var turning : bool = false
+var crouching : bool = false
+var crouch_sliding : bool = false
+var rolling : bool = false
 
-var canMove = true
+var canMove : bool = true
 
 @export var reticle_show_movements = true
 
@@ -380,7 +378,7 @@ func _slower_speed_moves(maximum_trigger, multiplier, stop_y_axis=false):
 	
 	# EIXO Y
 	if (stop_y_axis):
-		velocity.y *= multiplier
+		velocity.y = 0
 
 func _up_movement_input():
 	## Evitar o botão caso já esteja realizando ações
@@ -1059,6 +1057,9 @@ func _check_roll_input():
 	# Iniciar animação roll
 	player_animator.play("roll", -1, 1)
 
+	# Iniciar animação rolar cabeça
+	_start_roll_head()
+
 func _roll_move(delta):
 	# Se não estiver rolando
 	if (not rolling):
@@ -1070,11 +1071,14 @@ func _roll_move(delta):
 		# Desligar rolamento
 		rolling = false
 
+		# Desativar a corrida
+		running_time = 0
+
 		# Voltar a olhar livremente
 		can_look = true
 
-		# Verificar se possui algo em cima do jogador para evitar bugs
-		if (crouch_getUp_cast.is_colliding()):
+		# Verificar se possui algo em cima do jogador / Se manteve agachado / para evitar bugs
+		if (crouch_getUp_cast.is_colliding() or Input.is_action_pressed("crouch")):
 			# Ativar o agachar com after roll
 			# Assim, o jogador passará do rolling para crouching suavemente
 			_enable_crouch(true)
@@ -1103,23 +1107,27 @@ func _start_roll_head():
 
 	# Definir que animação de rolar está tocando
 	roll_animation = true
-	# Salvar ultima rotação em X
-	roll_animation_last_rotation = head.rotation.x
-	# Definir objetivo de rotação
-	roll_animation_rotation_target = -90
 
-	pass
-
-func _roll_head_move():
+func _roll_head_move(delta):
 	
 	# Evitar roll se estiver falso
 	if (not roll_animation):
 		# Impedir de continuar
 		return
 
-	head.rotation.x = lerp_angle(head.rotation.x, roll_animation_rotation_target, 0.1)
+	# Guardar rotação do jogador
+	var head_r = head.rotation
 
-	pass
+	# Rotacionar a cabeça do jogador
+	head.rotation = Vector3(head_r.x - roll_animation_speed * delta, head_r.y, head_r.z)
+
+	# Se a cabeça do jogador estiver virado em 360 graus
+	if (head_r.x <= -6.2831):
+		# Desativar animação
+		roll_animation = false
+
+		# Definir a cabeça do jogador em rotação X = 0
+		head.rotation = Vector3(0, head_r.y, head_r.z)
 
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
@@ -1166,6 +1174,9 @@ func _physics_process(delta):
 	# Realizar o movimento de rolar
 	_roll_move(delta)
 
+	# Realizar a animação de rolar a cabeça
+	_roll_head_move(delta)
+
 	# Input e ação de agachar e deslizar
 	_crouch_input()
 
@@ -1186,5 +1197,8 @@ func _physics_process(delta):
 	
 	# FOV
 	_change_fov(delta)
-	
+
+	if (Input.is_action_just_pressed("mouse_lock_toggle")):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
 	move_and_slide()

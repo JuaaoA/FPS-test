@@ -230,7 +230,7 @@ use_collision = true
 size = Vector3(1.07092, 1, 1)
 
 [node name="Player" parent="." instance=ExtResource("1_pqmdv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.72349, -0.372417, -0.698689)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.69723, -0.334668, -0.696497)
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
