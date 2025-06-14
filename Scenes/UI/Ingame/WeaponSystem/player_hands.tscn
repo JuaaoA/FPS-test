@@ -1,0 +1,37 @@
+[gd_scene load_steps=8 format=3 uid="uid://cnwp1nwh7x51e"]
+
+[ext_resource type="Script" uid="uid://cx46v2v4yjp85" path="res://Scripts/Player/WeaponSystem/initWeapon.gd" id="1_70pet"]
+[ext_resource type="Resource" uid="uid://drewby0lq3v7i" path="res://Scenes/Resources/Weapons/Melee1/melee1.tres" id="2_42okj"]
+[ext_resource type="Resource" uid="uid://peys4hckw3xf" path="res://Scenes/Resources/Weapons/Weapon1/weapon1.tres" id="2_70pet"]
+[ext_resource type="Texture2D" uid="uid://wwnhr6dfbfgj" path="res://Sprites/Ingame/Weapons/Light/Gun1/idle.png" id="3_42okj"]
+
+[sub_resource type="Gradient" id="Gradient_rfo62"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dvdfp"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rfo62"]
+color_ramp = SubResource("Gradient_rfo62")
+noise = SubResource("FastNoiseLite_dvdfp")
+
+[node name="PlayerHands" type="CenterContainer"]
+anchors_preset = -1
+anchor_left = 0.006
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -0.52
+offset_top = -7.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Weapon" type="Node2D" parent="."]
+script = ExtResource("1_70pet")
+WEAPON = ExtResource("2_70pet")
+idle_sway_noise_texture = SubResource("NoiseTexture2D_rfo62")
+idle_sway_speed = null
+primary = ExtResource("2_70pet")
+secondary = ExtResource("2_70pet")
+melee = ExtResource("2_42okj")
+
+[node name="WeaponSprite" type="Sprite2D" parent="Weapon"]
+scale = Vector2(0.62, 0.62)
+texture = ExtResource("3_42okj")

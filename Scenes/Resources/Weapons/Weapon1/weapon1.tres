@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapons" load_steps=3 format=3 uid="uid://peys4hckw3xf"]
+
+[ext_resource type="Script" uid="uid://cufjxnngh8idl" path="res://Scripts/Player/WeaponSystem/weapons.gd" id="1_g0j2a"]
+[ext_resource type="Texture2D" uid="uid://wwnhr6dfbfgj" path="res://Sprites/Ingame/Weapons/Light/Gun1/idle.png" id="2_8wwrr"]
+
+[resource]
+script = ExtResource("1_g0j2a")
+name = "Pistol"
+positionOffset = Vector2(0, 0)
+rotationOffset = 0.0
+sway_sensitivity_multiplier = 2.0
+sway_speed_multiplier = 0.8
+idle_anim_adjust = 200.0
+idle_anim_speed = 82.0
+idle_anim_amplitude = 300.0
+idle_anim_random_amount = 1.0
+weaponSprite = ExtResource("2_8wwrr")
+metadata/_custom_type_script = "uid://cufjxnngh8idl"

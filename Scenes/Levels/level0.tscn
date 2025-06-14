@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://cy4fj8rruygcb" path="res://Scripts/Player/Reticle/CustomReticle.gd" id="3_uxkdq"]
 [ext_resource type="Texture2D" uid="uid://midsr31gl7ts" path="res://Sprites/Reticles/climb_indicator.png" id="3_xb3od"]
 [ext_resource type="Texture2D" uid="uid://crrisvjggp8gb" path="res://Sprites/Reticles/walljump_indicator.png" id="5_owwqe"]
-[ext_resource type="Texture2D" uid="uid://dihv5j8cghyag" path="res://Sprites/Ingame/Weapons/Melee/Melee1/idle.png" id="6_kfc6s"]
+[ext_resource type="PackedScene" uid="uid://cnwp1nwh7x51e" path="res://Scenes/UI/Ingame/WeaponSystem/player_hands.tscn" id="6_kfc6s"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_y2v85"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -298,19 +298,15 @@ sprites_list = Array[CompressedTexture2D]([ExtResource("3_xb3od"), ExtResource("
 texture_filter = 1
 texture = ExtResource("3_xb3od")
 
-[node name="PlayerHands" type="CenterContainer" parent="UI"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -40.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="WeaponSprite" type="Sprite2D" parent="UI/PlayerHands"]
-position = Vector2(-330, -240)
-scale = Vector2(0.7, 0.7)
-texture = ExtResource("6_kfc6s")
+[node name="PlayerHands" parent="UI" instance=ExtResource("6_kfc6s")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.52
+offset_bottom = 7.0
+grow_horizontal = 1
+grow_vertical = 1

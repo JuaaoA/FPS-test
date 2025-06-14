@@ -236,3 +236,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.045, 0)
 shape = SubResource("SphereShape3D_k3t3i")
 target_position = Vector3(0, 1, 0)
 debug_shape_custom_color = Color(1, 1, 0, 1)
+
+[node name="PlayerData" type="Node3D" parent="."]
+
+[node name="PlayerBag" type="Node3D" parent="PlayerData"]

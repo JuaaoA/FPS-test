@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Weapons" load_steps=3 format=3 uid="uid://drewby0lq3v7i"]
+
+[ext_resource type="Script" uid="uid://cufjxnngh8idl" path="res://Scripts/Player/WeaponSystem/weapons.gd" id="1_i5b14"]
+[ext_resource type="Texture2D" uid="uid://dihv5j8cghyag" path="res://Sprites/Ingame/Weapons/Melee/Melee1/idle.png" id="2_86q65"]
+
+[resource]
+script = ExtResource("1_i5b14")
+name = "Faca"
+positionOffset = Vector2(0, 0)
+rotationOffset = 0.0
+sway_sensitivity_multiplier = 1.0
+sway_speed_multiplier = 1.0
+weaponSprite = ExtResource("2_86q65")
+metadata/_custom_type_script = "uid://cufjxnngh8idl"
