@@ -1129,9 +1129,18 @@ func _roll_head_move(delta):
 		# Definir a cabeça do jogador em rotação X = 0
 		head.rotation = Vector3(0, head_r.y, head_r.z)
 
+func is_idle():
+	# Verificar se o jogador está parado e no chão
+	return (velocity.x == 0 and velocity.z == 0 and is_on_floor())
+
+func get_player_speed():
+	# Retornar a velocidade do jogador
+	return current_speed
+
 ## PARA FISICA DO JOGO
 func _physics_process(delta):
-	
+	Engine.max_fps = 144
+
 	# Aplicar gravidade ao jogador
 	_apply_gravity(delta)
 
